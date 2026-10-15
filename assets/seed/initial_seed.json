@@ -1,0 +1,399 @@
+{
+  "version": 1,
+  "exportedAt": 1792000000000,
+  "sources": [
+    {
+      "id": "src-curated-learner",
+      "name": "Curated Open English Learner Dataset",
+      "licence": "CC-BY-SA 4.0",
+      "url": "https://example.org/dataset"
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag-daily",
+      "slug": "daily-conversation",
+      "name": "Giao tiếp hàng ngày",
+      "category": "topic",
+      "description": "Các từ và cụm từ thông dụng trong giao tiếp hàng ngày."
+    },
+    {
+      "id": "tag-business",
+      "slug": "business",
+      "name": "Kinh doanh & Công việc",
+      "category": "topic",
+      "description": "Từ vựng dùng trong công sở và đàm phán."
+    },
+    {
+      "id": "tag-idiom",
+      "slug": "idioms",
+      "name": "Thành ngữ (Idioms)",
+      "category": "grammar",
+      "description": "Thành ngữ tiếng Anh thông dụng."
+    },
+    {
+      "id": "tag-travel",
+      "slug": "travel",
+      "name": "Du lịch & Di chuyển",
+      "category": "topic",
+      "description": "Từ vựng dùng khi đi lại, du lịch, hỏi đường."
+    }
+  ],
+  "headwords": [
+    {
+      "id": "hw-run",
+      "spelling": "run",
+      "normalizedSpelling": "run",
+      "homographNo": 1,
+      "cefrLevel": "A1",
+      "notes": "Động từ và danh từ phổ biến với nhiều nghĩa.",
+      "isArchived": 0,
+      "createdAtMs": 1792000000000,
+      "updatedAtMs": 1792000000000,
+      "pronunciations": [
+        {
+          "id": "pron-run-uk",
+          "accent": "uk",
+          "ipa": "/rʌn/",
+          "audioAssetKey": null
+        },
+        {
+          "id": "pron-run-us",
+          "accent": "us",
+          "ipa": "/rʌn/",
+          "audioAssetKey": null
+        }
+      ],
+      "inflections": [
+        {"id": "inf-run-1", "form": "runs", "formType": "third_person_singular"},
+        {"id": "inf-run-2", "form": "running", "formType": "ing"},
+        {"id": "inf-run-3", "form": "ran", "formType": "past"},
+        {"id": "inf-run-4", "form": "run", "formType": "past_participle"}
+      ],
+      "senses": [
+        {
+          "id": "sense-run-v1",
+          "senseNumber": 1,
+          "partOfSpeech": "verb",
+          "definitionEn": "To move quickly using your legs, faster than walking.",
+          "meaningVi": "Chạy, di chuyển nhanh bằng chân.",
+          "cefrLevel": "A1",
+          "registerLabel": "neutral",
+          "domainLabel": "general",
+          "grammarNote": "intransitive",
+          "usageNote": "Thường dùng để chỉ hoạt động thể thao hoặc vội vã.",
+          "isActive": 1,
+          "tags": ["tag-daily"],
+          "examples": [
+            {
+              "id": "ex-run-1",
+              "englishText": "She runs five kilometres every morning before work.",
+              "vietnameseText": "Cô ấy chạy năm cây số mỗi buổi sáng trước khi đi làm.",
+              "note": null,
+              "sortOrder": 1
+            },
+            {
+              "id": "ex-run-2",
+              "englishText": "The children were running in the garden.",
+              "vietnameseText": "Lũ trẻ đang chạy nhảy trong vườn.",
+              "note": null,
+              "sortOrder": 2
+            }
+          ]
+        },
+        {
+          "id": "sense-run-v2",
+          "senseNumber": 2,
+          "partOfSpeech": "verb",
+          "definitionEn": "To manage or be in charge of an organisation or business.",
+          "meaningVi": "Điều hành, quản lý một tổ chức hoặc doanh nghiệp.",
+          "cefrLevel": "B1",
+          "registerLabel": "neutral",
+          "domainLabel": "business",
+          "grammarNote": "transitive",
+          "usageNote": "Thường đi kèm với business, company, project.",
+          "isActive": 1,
+          "tags": ["tag-business"],
+          "examples": [
+            {
+              "id": "ex-run-3",
+              "englishText": "He has been running his family's restaurant for over ten years.",
+              "vietnameseText": "Anh ấy đã điều hành nhà hàng gia đình hơn mười năm.",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        },
+        {
+          "id": "sense-run-n1",
+          "senseNumber": 3,
+          "partOfSpeech": "noun",
+          "definitionEn": "A period or spell of running, especially for exercise.",
+          "meaningVi": "Chuyến chạy bộ, buổi chạy tập thể dục.",
+          "cefrLevel": "A2",
+          "registerLabel": "neutral",
+          "domainLabel": "sports",
+          "grammarNote": "countable",
+          "usageNote": "Đi kèm cụm từ 'go for a run'.",
+          "isActive": 1,
+          "tags": ["tag-daily"],
+          "examples": [
+            {
+              "id": "ex-run-4",
+              "englishText": "I always feel refreshed after a long morning run.",
+              "vietnameseText": "Tôi luôn cảm thấy sảng khoái sau một buổi chạy dài vào buổi sáng.",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hw-book",
+      "spelling": "book",
+      "normalizedSpelling": "book",
+      "homographNo": 1,
+      "cefrLevel": "A1",
+      "notes": null,
+      "isArchived": 0,
+      "createdAtMs": 1792000000000,
+      "updatedAtMs": 1792000000000,
+      "pronunciations": [
+        {
+          "id": "pron-book-uk",
+          "accent": "uk",
+          "ipa": "/bʊk/",
+          "audioAssetKey": null
+        }
+      ],
+      "inflections": [
+        {"id": "inf-book-1", "form": "books", "formType": "plural"},
+        {"id": "inf-book-2", "form": "booked", "formType": "past"},
+        {"id": "inf-book-3", "form": "booking", "formType": "ing"}
+      ],
+      "senses": [
+        {
+          "id": "sense-book-n1",
+          "senseNumber": 1,
+          "partOfSpeech": "noun",
+          "definitionEn": "A set of printed pages that are bound together in a cover.",
+          "meaningVi": "Quyển sách, cuốn sách.",
+          "cefrLevel": "A1",
+          "registerLabel": "neutral",
+          "domainLabel": "general",
+          "grammarNote": "countable",
+          "usageNote": null,
+          "isActive": 1,
+          "tags": ["tag-daily"],
+          "examples": [
+            {
+              "id": "ex-book-1",
+              "englishText": "I bought an interesting English book yesterday.",
+              "vietnameseText": "Hôm qua tôi đã mua một cuốn sách tiếng Anh rất thú vị.",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        },
+        {
+          "id": "sense-book-v1",
+          "senseNumber": 2,
+          "partOfSpeech": "verb",
+          "definitionEn": "To arrange to have or use something at a particular time in the future.",
+          "meaningVi": "Đặt trước (vé, phòng khách sạn, bàn ăn...).",
+          "cefrLevel": "A2",
+          "registerLabel": "neutral",
+          "domainLabel": "travel",
+          "grammarNote": "transitive",
+          "usageNote": "Thường dùng trong bối cảnh du lịch, đặt vé máy bay, khách sạn.",
+          "isActive": 1,
+          "tags": ["tag-travel"],
+          "examples": [
+            {
+              "id": "ex-book-2",
+              "englishText": "We need to book the train tickets at least two days in advance.",
+              "vietnameseText": "Chúng ta cần đặt vé tàu trước ít nhất hai ngày.",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hw-meticulous",
+      "spelling": "meticulous",
+      "normalizedSpelling": "meticulous",
+      "homographNo": 1,
+      "cefrLevel": "C1",
+      "notes": "Tính từ nâng cao miêu tả sự tỉ mỉ, cẩn thận.",
+      "isArchived": 0,
+      "createdAtMs": 1792000000000,
+      "updatedAtMs": 1792000000000,
+      "pronunciations": [
+        {
+          "id": "pron-meticulous-uk",
+          "accent": "uk",
+          "ipa": "/məˈtɪk.jə.ləs/",
+          "audioAssetKey": null
+        }
+      ],
+      "inflections": [
+        {"id": "inf-meticulous-adv", "form": "meticulously", "formType": "adverb"}
+      ],
+      "senses": [
+        {
+          "id": "sense-meticulous-adj1",
+          "senseNumber": 1,
+          "partOfSpeech": "adjective",
+          "definitionEn": "Very careful and with great attention to every detail.",
+          "meaningVi": "Tỉ mỉ, cẩn trọng, kỹ lưỡng đến từng chi tiết.",
+          "cefrLevel": "C1",
+          "registerLabel": "formal",
+          "domainLabel": "academic",
+          "grammarNote": null,
+          "usageNote": "Thường dùng để khen ngợi công trình nghiên cứu, kế hoạch.",
+          "isActive": 1,
+          "tags": ["tag-business"],
+          "examples": [
+            {
+              "id": "ex-met-1",
+              "englishText": "She kept meticulous records of all financial transactions.",
+              "vietnameseText": "Cô ấy ghi chép tỉ mỉ mọi giao dịch tài chính.",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "phrases": [
+    {
+      "id": "phr-break-a-leg",
+      "phrase": "break a leg",
+      "normalizedPhrase": "break a leg",
+      "phraseType": "idiom",
+      "cefrLevel": "B1",
+      "notes": "Lời chúc may mắn truyền thống trong biểu diễn nghệ thuật.",
+      "isArchived": 0,
+      "createdAtMs": 1792000000000,
+      "updatedAtMs": 1792000000000,
+      "senses": [
+        {
+          "id": "sense-phr-break-a-leg-1",
+          "senseNumber": 1,
+          "partOfSpeech": "interjection",
+          "definitionEn": "Used for wishing someone good luck, especially before a performance or presentation.",
+          "meaningVi": "Chúc may mắn (thường dùng trước khi lên sân khấu biểu diễn hoặc thuyết trình).",
+          "cefrLevel": "B1",
+          "registerLabel": "informal",
+          "domainLabel": "general",
+          "grammarNote": "idiomatic expression",
+          "usageNote": "Không mang nghĩa tiêu cực mặc dù có từ 'break'.",
+          "isActive": 1,
+          "tags": ["tag-idiom", "tag-daily"],
+          "examples": [
+            {
+              "id": "ex-bal-1",
+              "englishText": "You are going to do great on stage tonight, break a leg!",
+              "vietnameseText": "Tối nay cậu sẽ thể hiện rất tuyệt trên sân khấu, chúc may mắn nhé!",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phr-piece-of-cake",
+      "phrase": "a piece of cake",
+      "normalizedPhrase": "a piece of cake",
+      "phraseType": "idiom",
+      "cefrLevel": "A2",
+      "notes": "Chỉ điều gì đó rất dễ dàng.",
+      "isArchived": 0,
+      "createdAtMs": 1792000000000,
+      "updatedAtMs": 1792000000000,
+      "senses": [
+        {
+          "id": "sense-phr-cake-1",
+          "senseNumber": 1,
+          "partOfSpeech": "idiom",
+          "definitionEn": "Something that is very easy to do.",
+          "meaningVi": "Dễ như ăn cháo, chuyện nhỏ, rất dễ dàng.",
+          "cefrLevel": "A2",
+          "registerLabel": "informal",
+          "domainLabel": "general",
+          "grammarNote": null,
+          "usageNote": "Tương đương với 'easy as pie'.",
+          "isActive": 1,
+          "tags": ["tag-idiom"],
+          "examples": [
+            {
+              "id": "ex-cake-1",
+              "englishText": "The final math test turned out to be a piece of cake.",
+              "vietnameseText": "Bài kiểm tra toán cuối kỳ hoá ra lại dễ như ăn cháo.",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "q-run-v1",
+      "targetItemId": "sense-run-v1",
+      "questionType": "meaning_choice",
+      "prompt": "Từ 'run' trong câu sau có nghĩa là gì?\n\"She runs five kilometres every morning.\"",
+      "explanation": "'run' trong ngữ cảnh này mang nghĩa di chuyển nhanh bằng chân (chạy bộ).",
+      "cefrLevel": "A1",
+      "contentOrigin": "seed",
+      "isActive": 1,
+      "createdAtMs": 1792000000000,
+      "options": [
+        {"id": "opt-run-1", "optionText": "Chạy, di chuyển nhanh bằng chân", "sortOrder": 1, "isCorrect": 1},
+        {"id": "opt-run-2", "optionText": "Điều hành một doanh nghiệp", "sortOrder": 2, "isCorrect": 0},
+        {"id": "opt-run-3", "optionText": "In ấn tài liệu", "sortOrder": 3, "isCorrect": 0},
+        {"id": "opt-run-4", "optionText": "Đặt vé máy bay", "sortOrder": 4, "isCorrect": 0}
+      ]
+    },
+    {
+      "id": "q-book-v1",
+      "targetItemId": "sense-book-v1",
+      "questionType": "cloze_choice",
+      "prompt": "Chọn từ thích hợp điền vào chỗ trống:\n\"We need to _____ the hotel room in advance.\"",
+      "explanation": "Động từ 'book' có nghĩa là đặt chỗ, đặt phòng trước khi đến.",
+      "cefrLevel": "A2",
+      "contentOrigin": "seed",
+      "isActive": 1,
+      "createdAtMs": 1792000000000,
+      "options": [
+        {"id": "opt-book-1", "optionText": "book", "sortOrder": 1, "isCorrect": 1},
+        {"id": "opt-book-2", "optionText": "run", "sortOrder": 2, "isCorrect": 0},
+        {"id": "opt-book-3", "optionText": "write", "sortOrder": 3, "isCorrect": 0},
+        {"id": "opt-book-4", "optionText": "learn", "sortOrder": 4, "isCorrect": 0}
+      ]
+    },
+    {
+      "id": "q-break-a-leg-1",
+      "targetItemId": "sense-phr-break-a-leg-1",
+      "questionType": "definition_choice",
+      "prompt": "What does the idiom 'break a leg' mean?",
+      "explanation": "'Break a leg' is a well-known idiom used to wish someone good luck.",
+      "cefrLevel": "B1",
+      "contentOrigin": "seed",
+      "isActive": 1,
+      "createdAtMs": 1792000000000,
+      "options": [
+        {"id": "opt-bal-1", "optionText": "To wish someone good luck", "sortOrder": 1, "isCorrect": 1},
+        {"id": "opt-bal-2", "optionText": "To cause a physical injury", "sortOrder": 2, "isCorrect": 0},
+        {"id": "opt-bal-3", "optionText": "To cancel an event", "sortOrder": 3, "isCorrect": 0},
+        {"id": "opt-bal-4", "optionText": "To leave quickly", "sortOrder": 4, "isCorrect": 0}
+      ]
+    }
+  ]
+}
