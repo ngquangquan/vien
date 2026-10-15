@@ -1,0 +1,11 @@
+{
+  "manifest_version": 1,
+  "description": "Seed manifest — tang version cua tung file khi noi dung thay doi.",
+  "files": [
+    { "path": "tags/tags.json",         "version": 1 },
+    { "path": "headwords/a1.json",      "version": 1 },
+    { "path": "headwords/c1.json",      "version": 1 },
+    { "path": "phrases/idioms.json",    "version": 1 },
+    { "path": "questions/general.json", "version": 1 }
+  ]
+}

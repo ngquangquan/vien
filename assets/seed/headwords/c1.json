@@ -1,0 +1,57 @@
+{
+  "headwords": [
+    {
+      "id": "hw-meticulous",
+      "spelling": "meticulous",
+      "normalizedSpelling": "meticulous",
+      "homographNo": 1,
+      "cefrLevel": "C1",
+      "notes": "Tính từ nâng cao miêu tả sự tỉ mỉ, cẩn thận.",
+      "isArchived": 0,
+      "createdAtMs": 1792000000000,
+      "updatedAtMs": 1792000000000,
+      "pronunciations": [
+        {
+          "id": "pron-meticulous-uk",
+          "accent": "uk",
+          "ipa": "/m\u0259\u02c8t\u026ak.j\u0259.l\u0259s/",
+          "audioAssetKey": null
+        }
+      ],
+      "inflections": [
+        {
+          "id": "inf-meticulous-adv",
+          "form": "meticulously",
+          "formType": "adverb"
+        }
+      ],
+      "senses": [
+        {
+          "id": "sense-meticulous-adj1",
+          "senseNumber": 1,
+          "partOfSpeech": "adjective",
+          "definitionEn": "Very careful and with great attention to every detail.",
+          "meaningVi": "Tỉ mỉ, cẩn thận, kỹ lưỡng đến từng chi tiết.",
+          "cefrLevel": "C1",
+          "registerLabel": "formal",
+          "domainLabel": "academic",
+          "grammarNote": null,
+          "usageNote": "Thường dùng để khen ngợi công trình nghiên cứu, kế hoạch.",
+          "isActive": 1,
+          "tags": [
+            "tag-business"
+          ],
+          "examples": [
+            {
+              "id": "ex-met-1",
+              "englishText": "She kept meticulous records of all financial transactions.",
+              "vietnameseText": "Cô ấy ghi chép tỉ mỉ mọi giao dịch tài chính.",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

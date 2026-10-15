@@ -1,0 +1,81 @@
+{
+  "phrases": [
+    {
+      "id": "phr-break-a-leg",
+      "phrase": "break a leg",
+      "normalizedPhrase": "break a leg",
+      "phraseType": "idiom",
+      "cefrLevel": "B1",
+      "notes": "Lời chúc may mắn truyền thống trong biểu diễn nghệ thuật.",
+      "isArchived": 0,
+      "createdAtMs": 1792000000000,
+      "updatedAtMs": 1792000000000,
+      "senses": [
+        {
+          "id": "sense-phr-break-a-leg-1",
+          "senseNumber": 1,
+          "partOfSpeech": "interjection",
+          "definitionEn": "Used for wishing someone good luck, especially before a performance or presentation.",
+          "meaningVi": "Chúc may mắn (thường dùng trước khi lên sân khấu biểu diễn hoặc thuyết trình).",
+          "cefrLevel": "B1",
+          "registerLabel": "informal",
+          "domainLabel": "general",
+          "grammarNote": "idiomatic expression",
+          "usageNote": "Không mang nghĩa tiêu cực mặc dù có từ 'break'.",
+          "isActive": 1,
+          "tags": [
+            "tag-idiom",
+            "tag-daily"
+          ],
+          "examples": [
+            {
+              "id": "ex-bal-1",
+              "englishText": "You are going to do great on stage tonight, break a leg!",
+              "vietnameseText": "Tối nay cậu sẽ thể hiện rất tuyệt trên sân khấu, chúc may mắn nhé!",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phr-piece-of-cake",
+      "phrase": "a piece of cake",
+      "normalizedPhrase": "a piece of cake",
+      "phraseType": "idiom",
+      "cefrLevel": "A2",
+      "notes": "Chỉ điều gì đó rất dễ dàng.",
+      "isArchived": 0,
+      "createdAtMs": 1792000000000,
+      "updatedAtMs": 1792000000000,
+      "senses": [
+        {
+          "id": "sense-phr-cake-1",
+          "senseNumber": 1,
+          "partOfSpeech": "idiom",
+          "definitionEn": "Something that is very easy to do.",
+          "meaningVi": "Dễ như ăn cháo, chuyện nhỏ, rất dễ dàng.",
+          "cefrLevel": "A2",
+          "registerLabel": "informal",
+          "domainLabel": "general",
+          "grammarNote": null,
+          "usageNote": "Tương đương với 'easy as pie'.",
+          "isActive": 1,
+          "tags": [
+            "tag-idiom"
+          ],
+          "examples": [
+            {
+              "id": "ex-cake-1",
+              "englishText": "The final math test turned out to be a piece of cake.",
+              "vietnameseText": "Bài kiểm tra toán cuối kỳ hóa ra lại dễ như ăn cháo.",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

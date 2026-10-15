@@ -1,56 +1,139 @@
 import 'dart:convert';
 
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 import 'app_database.dart';
 
+/// Manages seeding of initial/updated content into the database.
+///
+/// Architecture: manifest-based, per-file versioning.
+/// - [assets/seed/manifest.json] lists every seed file and its version.
+/// - Each file installed version is stored in [user_settings] under key
+///   `seed_file:<relative-path>`.
+/// - Only files whose manifest version exceeds the installed version are
+///   processed — unchanged files are never read after first install.
+/// - Files are loaded one at a time so RAM stays bounded even with
+///   thousands of entries spread across many files.
+///
+/// To add new data: edit the relevant file and bump its version in manifest.json.
 class SeedService {
   final AppDatabase db;
 
+  static const String _manifestPath = 'assets/seed/manifest.json';
+  static const String _seedFileKeyPrefix = 'seed_file:';
+
   SeedService(this.db);
 
-  Future<bool> seedFromAsset({
-    String assetPath = 'assets/seed/initial_seed.json',
-  }) async {
+  // ---------------------------------------------------------------------------
+  // Public API
+  // ---------------------------------------------------------------------------
+
+  /// Main entry point for production. Reads manifest and seeds only changed files.
+  Future<void> seedFromAssets() async {
     try {
-      final jsonString = await rootBundle.loadString(assetPath);
-      return await seedFromJsonString(jsonString);
+      final manifestString = await rootBundle.loadString(_manifestPath);
+      final manifest = json.decode(manifestString) as Map<String, dynamic>;
+      final files =
+          (manifest['files'] as List<dynamic>).cast<Map<String, dynamic>>();
+
+      for (final entry in files) {
+        final relativePath = entry['path'] as String;
+        final targetVersion = entry['version'] as int;
+        final settingKey = '$_seedFileKeyPrefix$relativePath';
+
+        final installed = await _installedVersion(settingKey);
+        if (installed >= targetVersion) continue;
+
+        await _processAssetFile(
+          'assets/seed/$relativePath',
+          settingKey,
+          targetVersion,
+        );
+      }
     } catch (e) {
-      // If rootBundle is unavailable (e.g. in headless unit test without flutter asset bundle),
-      // callers can use seedFromJsonMap directly.
-      return false;
+      debugPrint('SeedService: manifest error — $e');
     }
   }
 
-  Future<bool> seedFromJsonString(String jsonString) async {
-    final Map<String, dynamic> data =
-        json.decode(jsonString) as Map<String, dynamic>;
-    return await seedFromJsonMap(data);
-  }
+  // ---------------------------------------------------------------------------
+  // Test / legacy helpers
+  // ---------------------------------------------------------------------------
 
+  /// Used by unit tests: accepts a pre-decoded JSON map and seeds it.
+  /// Respects the top-level [version] field via a legacy seed_version gate.
   Future<bool> seedFromJsonMap(Map<String, dynamic> data) async {
     final seedVersion = data['version'] as int? ?? 1;
 
-    // Check existing seed version in user_settings
-    final existingSetting = await (db.select(
+    final existing = await (db.select(
       db.userSettings,
     )..where((tbl) => tbl.key.equals('seed_version'))).getSingleOrNull();
 
-    if (existingSetting != null) {
-      final installedVersion = int.tryParse(existingSetting.valueJson) ?? 0;
-      if (installedVersion >= seedVersion) {
-        // Already installed this version or higher
-        return false;
-      }
+    if (existing != null) {
+      final installed = int.tryParse(existing.valueJson) ?? 0;
+      if (installed >= seedVersion) return false;
     }
 
+    await _runSeedTransaction(data);
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await db
+        .into(db.userSettings)
+        .insertOnConflictUpdate(
+          UserSettingsCompanion.insert(
+            key: 'seed_version',
+            valueJson: seedVersion.toString(),
+            updatedAtMs: now,
+          ),
+        );
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Private helpers
+  // ---------------------------------------------------------------------------
+
+  Future<int> _installedVersion(String settingKey) async {
+    final row = await (db.select(
+      db.userSettings,
+    )..where((t) => t.key.equals(settingKey))).getSingleOrNull();
+    return row != null ? (int.tryParse(row.valueJson) ?? 0) : 0;
+  }
+
+  Future<void> _processAssetFile(
+    String assetPath,
+    String settingKey,
+    int targetVersion,
+  ) async {
+    try {
+      final raw = await rootBundle.loadString(assetPath);
+      final data = json.decode(raw) as Map<String, dynamic>;
+      await _runSeedTransaction(data);
+
+      final now = DateTime.now().millisecondsSinceEpoch;
+      await db
+          .into(db.userSettings)
+          .insertOnConflictUpdate(
+            UserSettingsCompanion.insert(
+              key: settingKey,
+              valueJson: targetVersion.toString(),
+              updatedAtMs: now,
+            ),
+          );
+    } catch (e) {
+      debugPrint('SeedService: failed to process $assetPath — $e');
+    }
+  }
+
+  /// Core seed logic. Processes whichever sections are present in [data].
+  /// All inserts use [insertOnConflictUpdate] — safe to run multiple times.
+  Future<void> _runSeedTransaction(Map<String, dynamic> data) async {
     await db.transaction(() async {
       final now = DateTime.now().millisecondsSinceEpoch;
 
       // 1. Content sources
-      final sources = data['sources'] as List<dynamic>? ?? [];
-      for (final s in sources) {
+      for (final s in (data['sources'] as List<dynamic>? ?? [])) {
         final src = s as Map<String, dynamic>;
         await db
             .into(db.contentSources)
@@ -65,8 +148,7 @@ class SeedService {
       }
 
       // 2. Tags
-      final tags = data['tags'] as List<dynamic>? ?? [];
-      for (final t in tags) {
+      for (final t in (data['tags'] as List<dynamic>? ?? [])) {
         final tag = t as Map<String, dynamic>;
         await db
             .into(db.tags)
@@ -82,8 +164,7 @@ class SeedService {
       }
 
       // 3. Headwords
-      final headwords = data['headwords'] as List<dynamic>? ?? [];
-      for (final hw in headwords) {
+      for (final hw in (data['headwords'] as List<dynamic>? ?? [])) {
         final hwMap = hw as Map<String, dynamic>;
         final hwId = hwMap['id'] as String;
 
@@ -105,9 +186,7 @@ class SeedService {
               ),
             );
 
-        // Pronunciations
-        final prons = hwMap['pronunciations'] as List<dynamic>? ?? [];
-        for (final p in prons) {
+        for (final p in (hwMap['pronunciations'] as List<dynamic>? ?? [])) {
           final pMap = p as Map<String, dynamic>;
           await db
               .into(db.pronunciations)
@@ -122,9 +201,7 @@ class SeedService {
               );
         }
 
-        // Inflections
-        final infs = hwMap['inflections'] as List<dynamic>? ?? [];
-        for (final inf in infs) {
+        for (final inf in (hwMap['inflections'] as List<dynamic>? ?? [])) {
           final infMap = inf as Map<String, dynamic>;
           await db
               .into(db.inflections)
@@ -138,99 +215,13 @@ class SeedService {
               );
         }
 
-        // Senses
-        final senses = hwMap['senses'] as List<dynamic>? ?? [];
-        for (final s in senses) {
-          final sMap = s as Map<String, dynamic>;
-          final senseId = sMap['id'] as String;
-
-          // Insert study item parent
-          await db
-              .into(db.studyItems)
-              .insertOnConflictUpdate(
-                StudyItemsCompanion.insert(
-                  id: senseId,
-                  itemType: 'sense',
-                  createdAtMs: hwMap['createdAtMs'] as int? ?? now,
-                ),
-              );
-
-          // Insert sense
-          await db
-              .into(db.senses)
-              .insertOnConflictUpdate(
-                SensesCompanion.insert(
-                  id: senseId,
-                  headwordId: hwId,
-                  senseNumber: sMap['senseNumber'] as int,
-                  partOfSpeech: sMap['partOfSpeech'] as String,
-                  definitionEn: sMap['definitionEn'] as String,
-                  meaningVi: Value(sMap['meaningVi'] as String?),
-                  cefrLevel: Value(sMap['cefrLevel'] as String?),
-                  registerLabel: Value(sMap['registerLabel'] as String?),
-                  domainLabel: Value(sMap['domainLabel'] as String?),
-                  grammarNote: Value(sMap['grammarNote'] as String?),
-                  usageNote: Value(sMap['usageNote'] as String?),
-                  isActive: Value(sMap['isActive'] as int? ?? 1),
-                ),
-              );
-
-          // Senses tags
-          final tagIds = sMap['tags'] as List<dynamic>? ?? [];
-          for (final tagId in tagIds) {
-            await db
-                .into(db.itemTags)
-                .insertOnConflictUpdate(
-                  ItemTagsCompanion.insert(
-                    studyItemId: senseId,
-                    tagId: tagId as String,
-                  ),
-                );
-          }
-
-          // Examples
-          final examples = sMap['examples'] as List<dynamic>? ?? [];
-          for (final ex in examples) {
-            final exMap = ex as Map<String, dynamic>;
-            await db
-                .into(db.examples)
-                .insertOnConflictUpdate(
-                  ExamplesCompanion.insert(
-                    id: exMap['id'] as String,
-                    studyItemId: senseId,
-                    englishText: exMap['englishText'] as String,
-                    vietnameseText: Value(exMap['vietnameseText'] as String?),
-                    note: Value(exMap['note'] as String?),
-                    sortOrder: Value(exMap['sortOrder'] as int? ?? 0),
-                  ),
-                );
-          }
-
-          // Initialise Learning Progress
-          await db
-              .into(db.learningProgress)
-              .insertOnConflictUpdate(
-                LearningProgressCompanion.insert(
-                  studyItemId: senseId,
-                  status: 'new',
-                  repetitionCount: const Value(0),
-                  intervalDays: const Value(0.0),
-                  easeFactor: const Value(2.5),
-                  lapses: const Value(0),
-                  dueAtMs: const Value(null),
-                  lastReviewedAtMs: const Value(null),
-                  totalCorrect: const Value(0),
-                  totalIncorrect: const Value(0),
-                  isFavorite: const Value(0),
-                  updatedAtMs: now,
-                ),
-              );
+        for (final s in (hwMap['senses'] as List<dynamic>? ?? [])) {
+          await _insertSense(s as Map<String, dynamic>, hwId, now);
         }
       }
 
       // 4. Phrases
-      final phrases = data['phrases'] as List<dynamic>? ?? [];
-      for (final ph in phrases) {
+      for (final ph in (data['phrases'] as List<dynamic>? ?? [])) {
         final phMap = ph as Map<String, dynamic>;
         final phId = phMap['id'] as String;
 
@@ -252,94 +243,13 @@ class SeedService {
               ),
             );
 
-        // Phrase senses
-        final senses = phMap['senses'] as List<dynamic>? ?? [];
-        for (final s in senses) {
-          final sMap = s as Map<String, dynamic>;
-          final senseId = sMap['id'] as String;
-
-          await db
-              .into(db.studyItems)
-              .insertOnConflictUpdate(
-                StudyItemsCompanion.insert(
-                  id: senseId,
-                  itemType: 'phrase_sense',
-                  createdAtMs: phMap['createdAtMs'] as int? ?? now,
-                ),
-              );
-
-          await db
-              .into(db.phraseSenses)
-              .insertOnConflictUpdate(
-                PhraseSensesCompanion.insert(
-                  id: senseId,
-                  phraseId: phId,
-                  senseNumber: Value(sMap['senseNumber'] as int? ?? 1),
-                  partOfSpeech: Value(sMap['partOfSpeech'] as String?),
-                  definitionEn: sMap['definitionEn'] as String,
-                  meaningVi: Value(sMap['meaningVi'] as String?),
-                  cefrLevel: Value(sMap['cefrLevel'] as String?),
-                  registerLabel: Value(sMap['registerLabel'] as String?),
-                  domainLabel: Value(sMap['domainLabel'] as String?),
-                  grammarNote: Value(sMap['grammarNote'] as String?),
-                  usageNote: Value(sMap['usageNote'] as String?),
-                  isActive: Value(sMap['isActive'] as int? ?? 1),
-                ),
-              );
-
-          final tagIds = sMap['tags'] as List<dynamic>? ?? [];
-          for (final tagId in tagIds) {
-            await db
-                .into(db.itemTags)
-                .insertOnConflictUpdate(
-                  ItemTagsCompanion.insert(
-                    studyItemId: senseId,
-                    tagId: tagId as String,
-                  ),
-                );
-          }
-
-          final examples = sMap['examples'] as List<dynamic>? ?? [];
-          for (final ex in examples) {
-            final exMap = ex as Map<String, dynamic>;
-            await db
-                .into(db.examples)
-                .insertOnConflictUpdate(
-                  ExamplesCompanion.insert(
-                    id: exMap['id'] as String,
-                    studyItemId: senseId,
-                    englishText: exMap['englishText'] as String,
-                    vietnameseText: Value(exMap['vietnameseText'] as String?),
-                    note: Value(exMap['note'] as String?),
-                    sortOrder: Value(exMap['sortOrder'] as int? ?? 0),
-                  ),
-                );
-          }
-
-          await db
-              .into(db.learningProgress)
-              .insertOnConflictUpdate(
-                LearningProgressCompanion.insert(
-                  studyItemId: senseId,
-                  status: 'new',
-                  repetitionCount: const Value(0),
-                  intervalDays: const Value(0.0),
-                  easeFactor: const Value(2.5),
-                  lapses: const Value(0),
-                  dueAtMs: const Value(null),
-                  lastReviewedAtMs: const Value(null),
-                  totalCorrect: const Value(0),
-                  totalIncorrect: const Value(0),
-                  isFavorite: const Value(0),
-                  updatedAtMs: now,
-                ),
-              );
+        for (final s in (phMap['senses'] as List<dynamic>? ?? [])) {
+          await _insertPhraseSense(s as Map<String, dynamic>, phId, now);
         }
       }
 
       // 5. Questions
-      final questions = data['questions'] as List<dynamic>? ?? [];
-      for (final q in questions) {
+      for (final q in (data['questions'] as List<dynamic>? ?? [])) {
         final qMap = q as Map<String, dynamic>;
         final qId = qMap['id'] as String;
 
@@ -359,8 +269,7 @@ class SeedService {
               ),
             );
 
-        final options = qMap['options'] as List<dynamic>? ?? [];
-        for (final opt in options) {
+        for (final opt in (qMap['options'] as List<dynamic>? ?? [])) {
           final optMap = opt as Map<String, dynamic>;
           await db
               .into(db.questionOptions)
@@ -375,19 +284,140 @@ class SeedService {
               );
         }
       }
+    });
+  }
 
-      // Record seed version
+  Future<void> _insertSense(
+    Map<String, dynamic> sMap,
+    String hwId,
+    int now,
+  ) async {
+    final senseId = sMap['id'] as String;
+
+    await db
+        .into(db.studyItems)
+        .insertOnConflictUpdate(
+          StudyItemsCompanion.insert(
+            id: senseId,
+            itemType: 'sense',
+            createdAtMs: sMap['createdAtMs'] as int? ?? now,
+          ),
+        );
+
+    await db
+        .into(db.senses)
+        .insertOnConflictUpdate(
+          SensesCompanion.insert(
+            id: senseId,
+            headwordId: hwId,
+            senseNumber: sMap['senseNumber'] as int,
+            partOfSpeech: sMap['partOfSpeech'] as String,
+            definitionEn: sMap['definitionEn'] as String,
+            meaningVi: Value(sMap['meaningVi'] as String?),
+            cefrLevel: Value(sMap['cefrLevel'] as String?),
+            registerLabel: Value(sMap['registerLabel'] as String?),
+            domainLabel: Value(sMap['domainLabel'] as String?),
+            grammarNote: Value(sMap['grammarNote'] as String?),
+            usageNote: Value(sMap['usageNote'] as String?),
+            isActive: Value(sMap['isActive'] as int? ?? 1),
+          ),
+        );
+
+    await _insertTagsAndExamples(sMap, senseId, now);
+    await _initLearningProgress(senseId, now);
+  }
+
+  Future<void> _insertPhraseSense(
+    Map<String, dynamic> sMap,
+    String phraseId,
+    int now,
+  ) async {
+    final senseId = sMap['id'] as String;
+
+    await db
+        .into(db.studyItems)
+        .insertOnConflictUpdate(
+          StudyItemsCompanion.insert(
+            id: senseId,
+            itemType: 'phrase_sense',
+            createdAtMs: now,
+          ),
+        );
+
+    await db
+        .into(db.phraseSenses)
+        .insertOnConflictUpdate(
+          PhraseSensesCompanion.insert(
+            id: senseId,
+            phraseId: phraseId,
+            senseNumber: Value(sMap['senseNumber'] as int? ?? 1),
+            partOfSpeech: Value(sMap['partOfSpeech'] as String?),
+            definitionEn: sMap['definitionEn'] as String,
+            meaningVi: Value(sMap['meaningVi'] as String?),
+            cefrLevel: Value(sMap['cefrLevel'] as String?),
+            registerLabel: Value(sMap['registerLabel'] as String?),
+            domainLabel: Value(sMap['domainLabel'] as String?),
+            grammarNote: Value(sMap['grammarNote'] as String?),
+            usageNote: Value(sMap['usageNote'] as String?),
+            isActive: Value(sMap['isActive'] as int? ?? 1),
+          ),
+        );
+
+    await _insertTagsAndExamples(sMap, senseId, now);
+    await _initLearningProgress(senseId, now);
+  }
+
+  Future<void> _insertTagsAndExamples(
+    Map<String, dynamic> sMap,
+    String studyItemId,
+    int now,
+  ) async {
+    for (final tagId in (sMap['tags'] as List<dynamic>? ?? [])) {
       await db
-          .into(db.userSettings)
+          .into(db.itemTags)
           .insertOnConflictUpdate(
-            UserSettingsCompanion.insert(
-              key: 'seed_version',
-              valueJson: seedVersion.toString(),
-              updatedAtMs: now,
+            ItemTagsCompanion.insert(
+              studyItemId: studyItemId,
+              tagId: tagId as String,
             ),
           );
-    });
+    }
 
-    return true;
+    for (final ex in (sMap['examples'] as List<dynamic>? ?? [])) {
+      final exMap = ex as Map<String, dynamic>;
+      await db
+          .into(db.examples)
+          .insertOnConflictUpdate(
+            ExamplesCompanion.insert(
+              id: exMap['id'] as String,
+              studyItemId: studyItemId,
+              englishText: exMap['englishText'] as String,
+              vietnameseText: Value(exMap['vietnameseText'] as String?),
+              note: Value(exMap['note'] as String?),
+              sortOrder: Value(exMap['sortOrder'] as int? ?? 0),
+            ),
+          );
+    }
+  }
+
+  Future<void> _initLearningProgress(String studyItemId, int now) async {
+    await db
+        .into(db.learningProgress)
+        .insertOnConflictUpdate(
+          LearningProgressCompanion.insert(
+            studyItemId: studyItemId,
+            status: 'new',
+            repetitionCount: const Value(0),
+            intervalDays: const Value(0.0),
+            easeFactor: const Value(2.5),
+            lapses: const Value(0),
+            dueAtMs: const Value(null),
+            lastReviewedAtMs: const Value(null),
+            totalCorrect: const Value(0),
+            totalIncorrect: const Value(0),
+            isFavorite: const Value(0),
+            updatedAtMs: now,
+          ),
+        );
   }
 }

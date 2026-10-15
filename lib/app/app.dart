@@ -54,7 +54,7 @@ class _EnglishLearningAppState extends State<EnglishLearningApp> {
   Future<void> _initApp() async {
     // Perform initial seed if first launch
     final seeder = SeedService(widget.db);
-    await seeder.seedFromAsset();
+    await seeder.seedFromAssets();
 
     // Initialize notification service
     await widget.notifService.initialize();

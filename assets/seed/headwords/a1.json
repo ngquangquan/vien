@@ -1,0 +1,322 @@
+{
+  "sources": [
+    {
+      "id": "src-curated-learner",
+      "name": "Curated Open English Learner Dataset",
+      "licence": "CC-BY-SA 4.0",
+      "url": "https://example.org/dataset"
+    }
+  ],
+  "headwords": [
+    {
+      "id": "hw-run",
+      "spelling": "run",
+      "normalizedSpelling": "run",
+      "homographNo": 1,
+      "cefrLevel": "A1",
+      "notes": "Động từ và danh từ phổ biến với nhiều nghĩa.",
+      "isArchived": 0,
+      "createdAtMs": 1792000000000,
+      "updatedAtMs": 1792000000000,
+      "pronunciations": [
+        {
+          "id": "pron-run-uk",
+          "accent": "uk",
+          "ipa": "/r\u028cn/",
+          "audioAssetKey": null
+        },
+        {
+          "id": "pron-run-us",
+          "accent": "us",
+          "ipa": "/r\u028cn/",
+          "audioAssetKey": null
+        }
+      ],
+      "inflections": [
+        {
+          "id": "inf-run-1",
+          "form": "runs",
+          "formType": "third_person_singular"
+        },
+        {
+          "id": "inf-run-2",
+          "form": "running",
+          "formType": "ing"
+        },
+        {
+          "id": "inf-run-3",
+          "form": "ran",
+          "formType": "past"
+        },
+        {
+          "id": "inf-run-4",
+          "form": "run",
+          "formType": "past_participle"
+        }
+      ],
+      "senses": [
+        {
+          "id": "sense-run-v1",
+          "senseNumber": 1,
+          "partOfSpeech": "verb",
+          "definitionEn": "To move quickly using your legs, faster than walking.",
+          "meaningVi": "Chạy, di chuyển nhanh bằng chân.",
+          "cefrLevel": "A1",
+          "registerLabel": "neutral",
+          "domainLabel": "general",
+          "grammarNote": "intransitive",
+          "usageNote": "Thường dùng để chỉ hoạt động thể thao hoặc vội vã.",
+          "isActive": 1,
+          "tags": [
+            "tag-daily"
+          ],
+          "examples": [
+            {
+              "id": "ex-run-1",
+              "englishText": "She runs five kilometres every morning before work.",
+              "vietnameseText": "Cô ấy chạy năm cây số mỗi buổi sáng trước khi đi làm.",
+              "note": null,
+              "sortOrder": 1
+            },
+            {
+              "id": "ex-run-2",
+              "englishText": "The children were running in the garden.",
+              "vietnameseText": "Lũ trẻ đang chạy nhãy trong vườn.",
+              "note": null,
+              "sortOrder": 2
+            }
+          ]
+        },
+        {
+          "id": "sense-run-v2",
+          "senseNumber": 2,
+          "partOfSpeech": "verb",
+          "definitionEn": "To manage or be in charge of an organisation or business.",
+          "meaningVi": "Điều hành, quản lý một tổ chức hoặc doanh nghiệp.",
+          "cefrLevel": "B1",
+          "registerLabel": "neutral",
+          "domainLabel": "business",
+          "grammarNote": "transitive",
+          "usageNote": "Thường đi kèm với business, company, project.",
+          "isActive": 1,
+          "tags": [
+            "tag-business"
+          ],
+          "examples": [
+            {
+              "id": "ex-run-3",
+              "englishText": "He has been running his family's restaurant for over ten years.",
+              "vietnameseText": "Anh ấy đã điều hành nhà hàng gia đình hơn mười năm.",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        },
+        {
+          "id": "sense-run-n1",
+          "senseNumber": 3,
+          "partOfSpeech": "noun",
+          "definitionEn": "A period or spell of running, especially for exercise.",
+          "meaningVi": "Chuyến chạy bộ, buổi chạy tập thể dục.",
+          "cefrLevel": "A2",
+          "registerLabel": "neutral",
+          "domainLabel": "sports",
+          "grammarNote": "countable",
+          "usageNote": "Đi kèm cụm từ 'go for a run'.",
+          "isActive": 1,
+          "tags": [
+            "tag-daily"
+          ],
+          "examples": [
+            {
+              "id": "ex-run-4",
+              "englishText": "I always feel refreshed after a long morning run.",
+              "vietnameseText": "Tôi luôn cảm thấy sảng khoái sau một buổi chạy dài vào buổi sáng.",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hw-book",
+      "spelling": "book",
+      "normalizedSpelling": "book",
+      "homographNo": 1,
+      "cefrLevel": "A1",
+      "notes": null,
+      "isArchived": 0,
+      "createdAtMs": 1792000000000,
+      "updatedAtMs": 1792000000000,
+      "pronunciations": [
+        {
+          "id": "pron-book-uk",
+          "accent": "uk",
+          "ipa": "/b\u028ak/",
+          "audioAssetKey": null
+        }
+      ],
+      "inflections": [
+        {
+          "id": "inf-book-1",
+          "form": "books",
+          "formType": "plural"
+        },
+        {
+          "id": "inf-book-2",
+          "form": "booked",
+          "formType": "past"
+        },
+        {
+          "id": "inf-book-3",
+          "form": "booking",
+          "formType": "ing"
+        }
+      ],
+      "senses": [
+        {
+          "id": "sense-book-n1",
+          "senseNumber": 1,
+          "partOfSpeech": "noun",
+          "definitionEn": "A set of printed pages that are bound together in a cover.",
+          "meaningVi": "Quyển sách, cuốn sách.",
+          "cefrLevel": "A1",
+          "registerLabel": "neutral",
+          "domainLabel": "general",
+          "grammarNote": "countable",
+          "usageNote": null,
+          "isActive": 1,
+          "tags": [
+            "tag-daily"
+          ],
+          "examples": [
+            {
+              "id": "ex-book-1",
+              "englishText": "I bought an interesting English book yesterday.",
+              "vietnameseText": "Hôm qua tôi đã mua một cuốn sách tiếng Anh rất thú vị.",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        },
+        {
+          "id": "sense-book-v1",
+          "senseNumber": 2,
+          "partOfSpeech": "verb",
+          "definitionEn": "To arrange to have or use something at a particular time in the future.",
+          "meaningVi": "Đặt trước (vé, phòng khách sạn, bàn ăn...).",
+          "cefrLevel": "A2",
+          "registerLabel": "neutral",
+          "domainLabel": "travel",
+          "grammarNote": "transitive",
+          "usageNote": "Thường dùng trong bối cảnh du lịch, đặt vé máy bay, khách sạn.",
+          "isActive": 1,
+          "tags": [
+            "tag-travel"
+          ],
+          "examples": [
+            {
+              "id": "ex-book-2",
+              "englishText": "We need to book the train tickets at least two days in advance.",
+              "vietnameseText": "Chúng ta cần đặt vé tàu trước ít nhất hai ngày.",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hw-name",
+      "spelling": "name",
+      "normalizedSpelling": "name",
+      "homographNo": 1,
+      "cefrLevel": "A1",
+      "notes": null,
+      "isArchived": 0,
+      "createdAtMs": 1792000000000,
+      "updatedAtMs": 1792000000000,
+      "pronunciations": [
+        {
+          "id": "pron-name-uk",
+          "accent": "uk",
+          "ipa": "/neɪm/",
+          "audioAssetKey": null
+        },
+        {
+          "id": "pron-name-us",
+          "accent": "us",
+          "ipa": "/neɪm/",
+          "audioAssetKey": null
+        }
+      ],
+      "inflections": [
+        {
+          "id": "inf-name-1",
+          "form": "names",
+          "formType": "plural"
+        }
+      ],
+      "senses": [
+        {
+          "id": "sense-name-n1",
+          "senseNumber": 1,
+          "partOfSpeech": "noun",
+          "definitionEn": "A word or set of words by which a person, animal, place, or thing is known.",
+          "meaningVi": "Tên gọi, danh xưng.",
+          "cefrLevel": "A1",
+          "registerLabel": "neutral",
+          "domainLabel": "general",
+          "grammarNote": "countable",
+          "usageNote": null,
+          "isActive": 1,
+          "tags": [
+            "tag-daily"
+          ],
+          "examples": [
+            {
+              "id": "ex-name-1",
+              "englishText": "What is your full name?",
+              "vietnameseText": "Tên đầy đủ của bạn là gì?",
+              "note": null,
+              "sortOrder": 1
+            },
+            {
+              "id": "ex-name-2",
+              "englishText": "She has a beautiful name: Anna.",
+              "vietnameseText": "Cô ấy có một cái tên đẹp: Anna.",
+              "note": null,
+              "sortOrder": 2
+            }
+          ]
+        },
+        {
+          "id": "sense-name-v1",
+          "senseNumber": 2,
+          "partOfSpeech": "verb",
+          "definitionEn": "To say or write the name of someone or something.",
+          "meaningVi": "Nói tên, xướng tên, gọi tên.",
+          "cefrLevel": "A2",
+          "registerLabel": "neutral",
+          "domainLabel": "general",
+          "grammarNote": "transitive",
+          "usageNote": "Thường đi với 'out' (name someone out).",
+          "isActive": 1,
+          "tags": [
+            "tag-daily"
+          ],
+          "examples": [
+            {
+              "id": "ex-name-3",
+              "englishText": "The teacher read out the names of the students who passed the exam.",
+              "vietnameseText": "Giáo viên đã xướng tên những học sinh đã đỗ kỳ thi.",
+              "note": null,
+              "sortOrder": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

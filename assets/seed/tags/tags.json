@@ -1,0 +1,32 @@
+{
+  "tags": [
+    {
+      "id": "tag-daily",
+      "slug": "daily-conversation",
+      "name": "Giao tiếp hàng ngày",
+      "category": "topic",
+      "description": "Các từ và cụm từ thông dụng trong giao tiếp hàng ngày."
+    },
+    {
+      "id": "tag-business",
+      "slug": "business",
+      "name": "Kinh doanh & Công việc",
+      "category": "topic",
+      "description": "Từ vựng dùng trong công sở và đàm phán."
+    },
+    {
+      "id": "tag-idiom",
+      "slug": "idioms",
+      "name": "Thành ngữ (Idioms)",
+      "category": "grammar",
+      "description": "Thành ngữ tiếng Anh thông dụng."
+    },
+    {
+      "id": "tag-travel",
+      "slug": "travel",
+      "name": "Du lịch & Di chuyển",
+      "category": "topic",
+      "description": "Từ vựng dùng khi đi lại, du lịch, hỏi đường."
+    }
+  ]
+}

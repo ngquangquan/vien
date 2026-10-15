@@ -30,3 +30,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/seed/
+    - assets/seed/tags/
+    - assets/seed/headwords/
+    - assets/seed/phrases/
+    - assets/seed/questions/
