@@ -10,6 +10,7 @@ import '../../phrases/presentation/phrases_list_screen.dart';
 import '../../quiz/data/quiz_repository.dart';
 import '../../quiz/presentation/quiz_screen.dart';
 import '../../settings/data/settings_repository.dart';
+import '../../../core/utils/responsive.dart';
 
 class HomeScreen extends StatefulWidget {
   final VocabularyRepository vocabRepo;
@@ -57,7 +58,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        body: SafeArea(
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
     }
 
     return Scaffold(
@@ -70,11 +75,17 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _loadData,
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              ResponsiveContainer(
+                maxWidth: 1080,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
             StreamBuilder<int>(
               stream: widget.reviewRepo.watchDueCount(),
               builder: (context, snapshot) {
@@ -229,69 +240,87 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 12),
 
-            GridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildActionCard(
-                  context,
-                  title: 'Từ vựng (CEFR)',
-                  subtitle: '${_stats['total'] ?? 0} mục từ',
-                  icon: Icons.menu_book,
-                  color: const Color(0xFF3B82F6),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (ctx) =>
-                          VocabularyListScreen(vocabRepo: widget.vocabRepo),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                int crossAxisCount = 2;
+                double childAspectRatio = 1.15;
+                if (constraints.maxWidth >= 840) {
+                  crossAxisCount = 4;
+                  childAspectRatio = 1.35;
+                } else if (constraints.maxWidth >= 540) {
+                  crossAxisCount = 2;
+                  childAspectRatio = 1.35;
+                } else if (constraints.maxWidth < 330) {
+                  crossAxisCount = 1;
+                  childAspectRatio = 2.4;
+                }
+
+                return GridView.count(
+                  crossAxisCount: crossAxisCount,
+                  childAspectRatio: childAspectRatio,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _buildActionCard(
+                      context,
+                      title: 'Từ vựng (CEFR)',
+                      subtitle: '${_stats['total'] ?? 0} mục từ',
+                      icon: Icons.menu_book,
+                      color: const Color(0xFF3B82F6),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (ctx) =>
+                              VocabularyListScreen(vocabRepo: widget.vocabRepo),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                _buildActionCard(
-                  context,
-                  title: 'Thành ngữ & Cụm từ',
-                  subtitle: 'Idioms & Collocations',
-                  icon: Icons.format_quote,
-                  color: const Color(0xFF0D9488),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (ctx) =>
-                          PhrasesListScreen(phrasesRepo: widget.phrasesRepo),
+                    _buildActionCard(
+                      context,
+                      title: 'Thành ngữ & Cụm từ',
+                      subtitle: 'Idioms & Collocations',
+                      icon: Icons.format_quote,
+                      color: const Color(0xFF0D9488),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (ctx) =>
+                              PhrasesListScreen(phrasesRepo: widget.phrasesRepo),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                _buildActionCard(
-                  context,
-                  title: 'Trắc nghiệm (Quiz)',
-                  subtitle: 'Kiểm tra phản xạ',
-                  icon: Icons.quiz_outlined,
-                  color: const Color(0xFF8B5CF6),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (ctx) => QuizScreen(quizRepo: widget.quizRepo),
+                    _buildActionCard(
+                      context,
+                      title: 'Trắc nghiệm (Quiz)',
+                      subtitle: 'Kiểm tra phản xạ',
+                      icon: Icons.quiz_outlined,
+                      color: const Color(0xFF8B5CF6),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (ctx) => QuizScreen(quizRepo: widget.quizRepo),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                _buildActionCard(
-                  context,
-                  title: 'Ôn tập thích ứng',
-                  subtitle: 'Khoảng cách SM-2',
-                  icon: Icons.psychology_outlined,
-                  color: const Color(0xFFF59E0B),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (ctx) =>
-                          ReviewScreen(reviewRepo: widget.reviewRepo),
+                    _buildActionCard(
+                      context,
+                      title: 'Ôn tập thích ứng',
+                      subtitle: 'Khoảng cách SM-2',
+                      icon: Icons.psychology_outlined,
+                      color: const Color(0xFFF59E0B),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (ctx) =>
+                              ReviewScreen(reviewRepo: widget.reviewRepo),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ],
+                  ],
+                );
+              },
             ),
 
             const SizedBox(height: 24),
@@ -301,35 +330,97 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 12),
 
-            Row(
-              children: [
-                _buildStatPill(
-                  'Mới',
-                  _stats['new'] ?? 0,
-                  const Color(0xFF64748B),
-                ),
-                const SizedBox(width: 8),
-                _buildStatPill(
-                  'Đang học',
-                  _stats['learning'] ?? 0,
-                  AppTheme.amberColor,
-                ),
-                const SizedBox(width: 8),
-                _buildStatPill(
-                  'Ôn tập',
-                  _stats['review'] ?? 0,
-                  AppTheme.primaryColor,
-                ),
-                const SizedBox(width: 8),
-                _buildStatPill(
-                  'Thuần thục',
-                  _stats['mastered'] ?? 0,
-                  AppTheme.greenColor,
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth < 360) {
+                  return Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildStatPill(
+                              'Mới',
+                              _stats['new'] ?? 0,
+                              const Color(0xFF64748B),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildStatPill(
+                              'Đang học',
+                              _stats['learning'] ?? 0,
+                              AppTheme.amberColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildStatPill(
+                              'Ôn tập',
+                              _stats['review'] ?? 0,
+                              AppTheme.primaryColor,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildStatPill(
+                              'Thuần thục',
+                              _stats['mastered'] ?? 0,
+                              AppTheme.greenColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                }
+
+                return Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatPill(
+                        'Mới',
+                        _stats['new'] ?? 0,
+                        const Color(0xFF64748B),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildStatPill(
+                        'Đang học',
+                        _stats['learning'] ?? 0,
+                        AppTheme.amberColor,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildStatPill(
+                        'Ôn tập',
+                        _stats['review'] ?? 0,
+                        AppTheme.primaryColor,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildStatPill(
+                        'Thuần thục',
+                        _stats['mastered'] ?? 0,
+                        AppTheme.greenColor,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 24),
-          ],
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -383,35 +474,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildStatPill(String label, int count, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          children: [
-            Text(
-              '$count',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: color,
             ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: color,
-                fontWeight: FontWeight.w600,
-              ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: color,
+              fontWeight: FontWeight.w600,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../shared/widgets/cefr_badge.dart';
 import '../data/phrases_repository.dart';
 import '../domain/models/phrase_models.dart';
@@ -65,9 +66,14 @@ class _PhrasesListScreenState extends State<PhrasesListScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
+      body: SafeArea(
+        child: ResponsiveContainer(
+          maxWidth: 1080,
+          expand: true,
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: TextField(
               controller: _searchCtrl,
@@ -235,7 +241,9 @@ class _PhrasesListScreenState extends State<PhrasesListScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+    ),
+  ),
+  floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
             context,

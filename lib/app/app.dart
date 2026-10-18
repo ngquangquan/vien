@@ -52,12 +52,20 @@ class _EnglishLearningAppState extends State<EnglishLearningApp> {
   }
 
   Future<void> _initApp() async {
-    // Perform initial seed if first launch
-    final seeder = SeedService(widget.db);
-    await seeder.seedFromAssets();
+    try {
+      // Perform initial seed if first launch
+      final seeder = SeedService(widget.db);
+      await seeder.seedFromAssets();
+    } catch (e, st) {
+      debugPrint('Seed initialization error: $e\n$st');
+    }
 
-    // Initialize notification service
-    await widget.notifService.initialize();
+    try {
+      // Initialize notification service
+      await widget.notifService.initialize();
+    } catch (e, st) {
+      debugPrint('Notification initialization error: $e\n$st');
+    }
 
     if (mounted) {
       setState(() => _isReady = true);
@@ -70,14 +78,16 @@ class _EnglishLearningAppState extends State<EnglishLearningApp> {
       return const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Đang khởi tạo từ điển offline...'),
-              ],
+          body: SafeArea(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Đang khởi tạo từ điển offline...'),
+                ],
+              ),
             ),
           ),
         ),

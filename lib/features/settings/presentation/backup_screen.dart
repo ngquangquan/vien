@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/backup/backup_service.dart';
+import '../../../core/utils/responsive.dart';
 
 class BackupScreen extends StatefulWidget {
   final BackupService backupService;
@@ -237,73 +238,83 @@ class _BackupScreenState extends State<BackupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Sao lưu & Khôi phục')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Export Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
+      body: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            ResponsiveContainer(
+              maxWidth: 800,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Xuất dữ liệu (Export)',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Lưu trữ toàn bộ từ vựng, cụm từ, thẻ, câu hỏi và tiến trình học thành file JSON để sao lưu ngoại tuyến.',
-                    style: TextStyle(color: Colors.grey, fontSize: 13),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: _isProcessing ? null : _exportBackup,
-                    icon: const Icon(Icons.download),
-                    label: const Text('Tạo bản sao lưu JSON'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // Import Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Khôi phục dữ liệu (Import)',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Dán mã JSON sao lưu vào ô bên dưới để khôi phục hoặc hợp nhất với từ điển hiện có.',
-                    style: TextStyle(color: Colors.grey, fontSize: 13),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _importCtrl,
-                    maxLines: 6,
-                    decoration: const InputDecoration(
-                      hintText: 'Dán chuỗi JSON sao lưu vào đây...',
+                  // Export Card
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Xuất dữ liệu (Export)',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Lưu trữ toàn bộ từ vựng, cụm từ, thẻ, câu hỏi và tiến trình học thành file JSON để sao lưu ngoại tuyến.',
+                            style: TextStyle(color: Colors.grey, fontSize: 13),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: _isProcessing ? null : _exportBackup,
+                            icon: const Icon(Icons.download),
+                            label: const Text('Tạo bản sao lưu JSON'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: _isProcessing ? null : _previewAndRestore,
-                    icon: const Icon(Icons.upload),
-                    label: const Text('Xem trước & Khôi phục'),
+
+                  const SizedBox(height: 20),
+
+                  // Import Card
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Khôi phục dữ liệu (Import)',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Dán mã JSON sao lưu vào ô bên dưới để khôi phục hoặc hợp nhất với từ điển hiện có.',
+                            style: TextStyle(color: Colors.grey, fontSize: 13),
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: _importCtrl,
+                            maxLines: 6,
+                            decoration: const InputDecoration(
+                              hintText: 'Dán chuỗi JSON sao lưu vào đây...',
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: _isProcessing ? null : _previewAndRestore,
+                            icon: const Icon(Icons.upload),
+                            label: const Text('Xem trước & Khôi phục'),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

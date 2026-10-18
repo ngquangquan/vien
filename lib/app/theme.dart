@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppTheme {
   static const primaryColor = Color(0xFF2563EB); // Royal Blue
@@ -25,6 +26,13 @@ class AppTheme {
       centerTitle: false,
       backgroundColor: Colors.white,
       foregroundColor: Color(0xFF0F172A),
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.white,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
       titleTextStyle: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w700,
@@ -88,6 +96,13 @@ class AppTheme {
       centerTitle: false,
       backgroundColor: Color(0xFF1E293B),
       foregroundColor: Colors.white,
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: Color(0xFF0F172A),
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
       titleTextStyle: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w700,

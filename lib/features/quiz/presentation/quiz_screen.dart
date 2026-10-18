@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../shared/widgets/cefr_badge.dart';
 import '../data/quiz_repository.dart';
 
@@ -86,26 +87,34 @@ class _QuizScreenState extends State<QuizScreen> {
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(title: const Text('Luyện tập trắc nghiệm')),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const SafeArea(
+          child: Center(child: CircularProgressIndicator()),
+        ),
       );
     }
 
     if (_questions.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Luyện tập trắc nghiệm')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.quiz_outlined, size: 64, color: Colors.grey.shade400),
-              const SizedBox(height: 16),
-              const Text('Chưa có câu hỏi trắc nghiệm nào.'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _startSession,
-                child: const Text('Tải lại'),
+        body: SafeArea(
+          child: ResponsiveContainer(
+            maxWidth: 500,
+            expand: true,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.quiz_outlined, size: 64, color: Colors.grey.shade400),
+                  const SizedBox(height: 16),
+                  const Text('Chưa có câu hỏi trắc nghiệm nào.'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _startSession,
+                    child: const Text('Tải lại'),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       );
@@ -116,50 +125,56 @@ class _QuizScreenState extends State<QuizScreen> {
 
       return Scaffold(
         appBar: AppBar(title: const Text('Kết quả trắc nghiệm')),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: percentage >= 70
-                        ? AppTheme.greenColor.withValues(alpha: 0.12)
-                        : AppTheme.amberColor.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    percentage >= 70
-                        ? Icons.emoji_events_outlined
-                        : Icons.lightbulb_outline,
-                    size: 72,
-                    color: percentage >= 70
-                        ? AppTheme.greenColor
-                        : AppTheme.amberColor,
-                  ),
+        body: SafeArea(
+          child: ResponsiveContainer(
+            maxWidth: 500,
+            expand: true,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: percentage >= 70
+                            ? AppTheme.greenColor.withValues(alpha: 0.12)
+                            : AppTheme.amberColor.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        percentage >= 70
+                            ? Icons.emoji_events_outlined
+                            : Icons.lightbulb_outline,
+                        size: 72,
+                        color: percentage >= 70
+                            ? AppTheme.greenColor
+                            : AppTheme.amberColor,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      percentage >= 70 ? 'Xuất sắc!' : 'Hãy cố gắng hơn!',
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Bạn trả lời đúng $_score / ${_questions.length} câu ($percentage%)',
+                      style: const TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 32),
+                    ElevatedButton.icon(
+                      onPressed: _startSession,
+                      icon: const Icon(Icons.replay),
+                      label: const Text('Làm bài mới'),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                Text(
-                  percentage >= 70 ? 'Xuất sắc!' : 'Hãy cố gắng hơn!',
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Bạn trả lời đúng $_score / ${_questions.length} câu ($percentage%)',
-                  style: const TextStyle(fontSize: 18, color: Colors.grey),
-                ),
-                const SizedBox(height: 32),
-                ElevatedButton.icon(
-                  onPressed: _startSession,
-                  icon: const Icon(Icons.replay),
-                  label: const Text('Làm bài mới'),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -182,10 +197,16 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Card(
+      body: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            ResponsiveContainer(
+              maxWidth: 720,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Card(
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -363,6 +384,10 @@ class _QuizScreenState extends State<QuizScreen> {
           ],
         ],
       ),
-    );
+    ),
+  ],
+),
+),
+);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../shared/widgets/cefr_badge.dart';
 import '../data/review_repository.dart';
 
@@ -59,51 +60,59 @@ class _ReviewScreenState extends State<ReviewScreen> {
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(title: const Text('Ôn tập thích ứng (SM-2)')),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const SafeArea(
+          child: Center(child: CircularProgressIndicator()),
+        ),
       );
     }
 
     if (_items.isEmpty || _currentIndex >= _items.length) {
       return Scaffold(
         appBar: AppBar(title: const Text('Ôn tập thích ứng (SM-2)')),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppTheme.greenColor.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check_circle_outline,
-                    size: 72,
-                    color: AppTheme.greenColor,
-                  ),
+        body: SafeArea(
+          child: ResponsiveContainer(
+            maxWidth: 600,
+            expand: true,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppTheme.greenColor.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.check_circle_outline,
+                        size: 72,
+                        color: AppTheme.greenColor,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Tuyệt vời!',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _sessionReviewedCount > 0
+                          ? 'Bạn đã hoàn thành phiên ôn tập với $_sessionReviewedCount mục!'
+                          : 'Hiện không có từ hoặc cụm từ nào đến hạn ôn tập hôm nay.',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: _loadItems,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Kiểm tra lại'),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Tuyệt vời!',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _sessionReviewedCount > 0
-                      ? 'Bạn đã hoàn thành phiên ôn tập với $_sessionReviewedCount mục!'
-                      : 'Hiện không có từ hoặc cụm từ nào đến hạn ôn tập hôm nay.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16, color: Colors.grey),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: _loadItems,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Kiểm tra lại'),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -127,12 +136,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Expanded(
-              child: Card(
+      body: SafeArea(
+        child: ResponsiveContainer(
+          maxWidth: 680,
+          child: Column(
+            children: [
+              Expanded(
+                child: Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -391,6 +401,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
             const SizedBox(height: 8),
           ],
         ),
+      ),
       ),
     );
   }

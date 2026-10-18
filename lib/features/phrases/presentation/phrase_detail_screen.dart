@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../shared/widgets/cefr_badge.dart';
 import '../data/phrases_repository.dart';
 import '../domain/models/phrase_models.dart';
@@ -160,10 +161,16 @@ class _PhraseDetailScreenState extends State<PhraseDetailScreen> {
               ),
             ],
           ),
-          body: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              Card(
+          body: SafeArea(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                ResponsiveContainer(
+                  maxWidth: 800,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -327,7 +334,11 @@ class _PhraseDetailScreenState extends State<PhraseDetailScreen> {
                   ),
                 );
               }),
-            ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },

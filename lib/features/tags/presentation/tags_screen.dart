@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/utils/responsive.dart';
 import '../data/tags_repository.dart';
 
 class TagsScreen extends StatefulWidget {
@@ -121,9 +122,14 @@ class _TagsScreenState extends State<TagsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Quản lý thẻ (Tags)')),
-      body: StreamBuilder<List<Tag>>(
-        stream: widget.tagsRepo.watchAllTags(),
-        builder: (context, snapshot) {
+      body: SafeArea(
+        child: ResponsiveContainer(
+          maxWidth: 800,
+          expand: true,
+          padding: EdgeInsets.zero,
+          child: StreamBuilder<List<Tag>>(
+            stream: widget.tagsRepo.watchAllTags(),
+            builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -208,7 +214,9 @@ class _TagsScreenState extends State<TagsScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
+    ),
+  ),
+  floatingActionButton: FloatingActionButton(
         onPressed: _showAddTagDialog,
         child: const Icon(Icons.add),
       ),

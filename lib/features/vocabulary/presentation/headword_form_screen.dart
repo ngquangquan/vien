@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/utils/responsive.dart';
 import '../data/vocabulary_repository.dart';
 import '../domain/models/vocabulary_models.dart';
 
@@ -256,11 +257,17 @@ class _HeadwordFormScreenState extends State<HeadwordFormScreen> {
           ),
         ],
       ),
-      body: Form(
-        key: _formKey,
+      body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.zero,
           children: [
+            ResponsiveContainer(
+              maxWidth: 800,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -542,9 +549,14 @@ class _HeadwordFormScreenState extends State<HeadwordFormScreen> {
                     ),
             ),
             const SizedBox(height: 32),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 }
+

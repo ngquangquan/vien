@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/utils/responsive.dart';
 import '../data/phrases_repository.dart';
 import '../domain/models/phrase_models.dart';
 
@@ -235,11 +236,17 @@ class _PhraseFormScreenState extends State<PhraseFormScreen> {
           ),
         ],
       ),
-      body: Form(
-        key: _formKey,
+      body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.zero,
           children: [
+            ResponsiveContainer(
+              maxWidth: 800,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -471,9 +478,14 @@ class _PhraseFormScreenState extends State<PhraseFormScreen> {
                       ),
                     ),
             ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 }
+

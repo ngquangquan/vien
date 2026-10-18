@@ -11,18 +11,76 @@ class UserPreferences {
   final List<String> preferredTags;
   final bool darkTheme;
 
+  // Study Reminder Settings
+  final bool reminderEnabled;
+  final String reminderMode; // 'fixed' | 'interval' | 'cron'
+  final List<String> reminderFixedTimes; // e.g. ['08:00', '20:00']
+  final int reminderIntervalMinutes; // e.g. 120 (2h)
+  final String reminderStartTime; // '08:00'
+  final String reminderEndTime; // '22:00'
+  final String reminderCronExpression; // '0 8,20 * * *'
+  final List<int> reminderWeekdays; // 1 = Mon ... 7 = Sun
+
   const UserPreferences({
     this.dailyGoal = 10,
     this.preferredCefr = const [],
     this.preferredTags = const [],
     this.darkTheme = false,
+    this.reminderEnabled = true,
+    this.reminderMode = 'fixed',
+    this.reminderFixedTimes = const ['08:00', '20:00'],
+    this.reminderIntervalMinutes = 120,
+    this.reminderStartTime = '08:00',
+    this.reminderEndTime = '22:00',
+    this.reminderCronExpression = '0 8,20 * * *',
+    this.reminderWeekdays = const [1, 2, 3, 4, 5, 6, 7],
   });
+
+  UserPreferences copyWith({
+    int? dailyGoal,
+    List<String>? preferredCefr,
+    List<String>? preferredTags,
+    bool? darkTheme,
+    bool? reminderEnabled,
+    String? reminderMode,
+    List<String>? reminderFixedTimes,
+    int? reminderIntervalMinutes,
+    String? reminderStartTime,
+    String? reminderEndTime,
+    String? reminderCronExpression,
+    List<int>? reminderWeekdays,
+  }) {
+    return UserPreferences(
+      dailyGoal: dailyGoal ?? this.dailyGoal,
+      preferredCefr: preferredCefr ?? this.preferredCefr,
+      preferredTags: preferredTags ?? this.preferredTags,
+      darkTheme: darkTheme ?? this.darkTheme,
+      reminderEnabled: reminderEnabled ?? this.reminderEnabled,
+      reminderMode: reminderMode ?? this.reminderMode,
+      reminderFixedTimes: reminderFixedTimes ?? this.reminderFixedTimes,
+      reminderIntervalMinutes:
+          reminderIntervalMinutes ?? this.reminderIntervalMinutes,
+      reminderStartTime: reminderStartTime ?? this.reminderStartTime,
+      reminderEndTime: reminderEndTime ?? this.reminderEndTime,
+      reminderCronExpression:
+          reminderCronExpression ?? this.reminderCronExpression,
+      reminderWeekdays: reminderWeekdays ?? this.reminderWeekdays,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     'dailyGoal': dailyGoal,
     'preferredCefr': preferredCefr,
     'preferredTags': preferredTags,
     'darkTheme': darkTheme,
+    'reminderEnabled': reminderEnabled,
+    'reminderMode': reminderMode,
+    'reminderFixedTimes': reminderFixedTimes,
+    'reminderIntervalMinutes': reminderIntervalMinutes,
+    'reminderStartTime': reminderStartTime,
+    'reminderEndTime': reminderEndTime,
+    'reminderCronExpression': reminderCronExpression,
+    'reminderWeekdays': reminderWeekdays,
   };
 
   factory UserPreferences.fromJson(Map<String, dynamic> json) {
@@ -33,6 +91,19 @@ class UserPreferences {
       preferredTags:
           (json['preferredTags'] as List<dynamic>?)?.cast<String>() ?? const [],
       darkTheme: json['darkTheme'] as bool? ?? false,
+      reminderEnabled: json['reminderEnabled'] as bool? ?? true,
+      reminderMode: json['reminderMode'] as String? ?? 'fixed',
+      reminderFixedTimes:
+          (json['reminderFixedTimes'] as List<dynamic>?)?.cast<String>() ??
+          const ['08:00', '20:00'],
+      reminderIntervalMinutes: json['reminderIntervalMinutes'] as int? ?? 120,
+      reminderStartTime: json['reminderStartTime'] as String? ?? '08:00',
+      reminderEndTime: json['reminderEndTime'] as String? ?? '22:00',
+      reminderCronExpression:
+          json['reminderCronExpression'] as String? ?? '0 8,20 * * *',
+      reminderWeekdays:
+          (json['reminderWeekdays'] as List<dynamic>?)?.cast<int>() ??
+          const [1, 2, 3, 4, 5, 6, 7],
     );
   }
 }
