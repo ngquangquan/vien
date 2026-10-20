@@ -48,6 +48,12 @@ flutter pub get
 flutter run
 ```
 
+### Build APK Android
+Xem hướng dẫn chi tiết tại [HUONG_DAN_BUILD_APK.md](HUONG_DAN_BUILD_APK.md) hoặc chạy nhanh:
+```bash
+flutter build apk --release
+```
+
 ### Yêu cầu
 
 - Flutter ≥ 3.x, Dart SDK ^3.13.5
