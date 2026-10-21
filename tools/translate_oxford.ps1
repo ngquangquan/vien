@@ -21,6 +21,18 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+# --- UTF-8 everywhere (fix loi font tieng Viet tren Windows PowerShell 5.1) ---
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding           = [System.Text.Encoding]::UTF8
+$UTF8NoBom = [System.Text.UTF8Encoding]::new($false)
+
+function Read-Utf8([string]$path) {
+    return [System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)
+}
+function Write-Utf8([string]$path, [string]$text) {
+    [System.IO.File]::WriteAllText($path, $text, $UTF8NoBom)
+}
+
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
@@ -98,9 +110,13 @@ $inputJson
     $bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($body)
 
     try {
-        $response = Invoke-RestMethod -Uri $API_URL -Method POST `
+        $raw = Invoke-WebRequest -Uri $API_URL -Method POST `
             -ContentType "application/json; charset=utf-8" `
-            -Body $bodyBytes
+            -Body $bodyBytes -UseBasicParsing
+        $ms = $raw.RawContentStream
+        $ms.Position = 0
+        $reader = New-Object System.IO.StreamReader($ms, [System.Text.Encoding]::UTF8)
+        $response = $reader.ReadToEnd() | ConvertFrom-Json
 
         $text = $response.candidates[0].content.parts[0].text
 
@@ -120,7 +136,7 @@ $inputJson
 # ---------------------------------------------------------------------------
 $progress = @{}
 if (Test-Path $PROGRESS_FILE) {
-    $progress = Get-Content $PROGRESS_FILE -Raw | ConvertFrom-Json
+    $progress = Read-Utf8 $PROGRESS_FILE | ConvertFrom-Json
     # ConvertFrom-Json tra ve PSCustomObject, convert sang hashtable
     $ht = @{}
     $progress.PSObject.Properties | ForEach-Object { $ht[$_.Name] = $_.Value }
@@ -129,7 +145,7 @@ if (Test-Path $PROGRESS_FILE) {
 
 function Save-Progress {
     $obj = [pscustomobject]$progress
-    $obj | ConvertTo-Json | Out-File $PROGRESS_FILE -Encoding utf8
+    Write-Utf8 $PROGRESS_FILE ($obj | ConvertTo-Json)
 }
 
 # ---------------------------------------------------------------------------
@@ -143,10 +159,11 @@ $errorCount      = 0
 foreach ($file in $files) {
     Write-Host "--- $($file.Name) ---" -ForegroundColor Cyan
 
-    $data = Get-Content $file.FullName -Raw | ConvertFrom-Json
+    $data = Read-Utf8 $file.FullName | ConvertFrom-Json
 
     # Thu thap tat ca senses can dich (meaningVi == null)
     $pendingSenses = [System.Collections.Generic.List[object]]::new()
+    $skippedCount  = 0
 
     foreach ($hw in $data.headwords) {
         foreach ($sense in $hw.senses) {
@@ -199,8 +216,8 @@ foreach ($file in $files) {
         $results = Invoke-GeminiTranslate $batch
 
         if ($null -eq $results) {
-            Write-Host " FAILED - retry sau 5s..." -ForegroundColor Red
-            Start-Sleep -Seconds 5
+            Write-Host " FAILED - retry sau 30s..." -ForegroundColor Red
+            Start-Sleep -Seconds 30
             $results = Invoke-GeminiTranslate $batch
             if ($null -eq $results) {
                 Write-Host " FAILED lan 2 - bo qua batch nay" -ForegroundColor Red
@@ -242,25 +259,15 @@ foreach ($file in $files) {
         Save-Progress
 
         # Ghi file sau moi 5 batches (checkpoint)
-        if (($batchNum % 5) -eq 0) {
-            $jsonOut = $data | ConvertTo-Json -Depth 20
-            [System.IO.File]::WriteAllText(
-                $file.FullName,
-                $jsonOut,
-                [System.Text.UTF8Encoding]::new($false)
-            )
+        if (($batchNum % 2) -eq 0) {
+            Write-Utf8 $file.FullName ($data | ConvertTo-Json -Depth 20)
             Write-Host "  >> Checkpoint saved: $($file.Name)" -ForegroundColor DarkGray
         }
     }
 
     # Ghi file lan cuoi sau khi hoan thanh 1 file
     Write-Host "  Ghi $($file.Name)..." -NoNewline
-    $jsonOut = $data | ConvertTo-Json -Depth 20
-    [System.IO.File]::WriteAllText(
-        $file.FullName,
-        $jsonOut,
-        [System.Text.UTF8Encoding]::new($false)
-    )
+    Write-Utf8 $file.FullName ($data | ConvertTo-Json -Depth 20)
     Write-Host " OK" -ForegroundColor Green
     Write-Host ""
 }
