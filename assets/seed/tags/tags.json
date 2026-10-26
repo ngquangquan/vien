@@ -8,25 +8,158 @@
       "description": "Các từ và cụm từ thông dụng trong giao tiếp hàng ngày."
     },
     {
-      "id": "tag-business",
-      "slug": "business",
-      "name": "Kinh doanh & Công việc",
+      "id": "tag-food-drink",
+      "slug": "food-and-drink",
+      "name": "Ăn uống & Ẩm thực",
       "category": "topic",
-      "description": "Từ vựng dùng trong công sở và đàm phán."
+      "description": "Món ăn, đồ uống, cách chế biến và trải nghiệm ẩm thực."
+    },
+    {
+      "id": "tag-fruits",
+      "slug": "fruits",
+      "name": "Hoa quả & Trái cây",
+      "category": "topic",
+      "description": "Các loại trái cây nhiệt đới, ôn đới và quả mọng."
+    },
+    {
+      "id": "tag-vegetables",
+      "slug": "vegetables",
+      "name": "Rau củ",
+      "category": "topic",
+      "description": "Các loại rau xanh, củ quả và thảo mộc nấu ăn."
+    },
+    {
+      "id": "tag-traffic",
+      "slug": "transportation-traffic",
+      "name": "Giao thông & Phương tiện",
+      "category": "topic",
+      "description": "Phương tiện di chuyển, luật giao thông và hạ tầng đường bộ."
+    },
+    {
+      "id": "tag-travel",
+      "slug": "travel",
+      "name": "Du lịch & Khám phá",
+      "category": "topic",
+      "description": "Từ vựng dùng khi đi lại, du lịch, hỏi đường và khách sạn."
+    },
+    {
+      "id": "tag-family",
+      "slug": "family-relationships",
+      "name": "Gia đình & Mối quan hệ",
+      "category": "topic",
+      "description": "Mối quan hệ gia đình, bạn bè và tương tác xã hội."
+    },
+    {
+      "id": "tag-body-health",
+      "slug": "body-and-health",
+      "name": "Cơ thể & Sức khỏe",
+      "category": "topic",
+      "description": "Bộ phận cơ thể, sức khỏe, bệnh tật và chăm sóc y tế."
+    },
+    {
+      "id": "tag-clothing",
+      "slug": "clothing-fashion",
+      "name": "Quần áo & Thời trang",
+      "category": "topic",
+      "description": "Trang phục, phụ kiện, phong cách và chất liệu may mặc."
+    },
+    {
+      "id": "tag-home",
+      "slug": "home-living",
+      "name": "Nhà cửa & Đời sống",
+      "category": "topic",
+      "description": "Phòng ốc, đồ gia dụng, nội thất và sinh hoạt thường nhật."
+    },
+    {
+      "id": "tag-education",
+      "slug": "education-school",
+      "name": "Giáo dục & Trường học",
+      "category": "topic",
+      "description": "Môn học, trường lớp, thi cử và hoạt động học tập."
+    },
+    {
+      "id": "tag-jobs",
+      "slug": "jobs-careers",
+      "name": "Nghề nghiệp & Việc làm",
+      "category": "topic",
+      "description": "Tên nghề nghiệp, tuyển dụng và môi trường công sở."
+    },
+    {
+      "id": "tag-business",
+      "slug": "business-finance",
+      "name": "Kinh doanh & Tài chính",
+      "category": "topic",
+      "description": "Thương mại, tiền tệ, đầu tư và đàm phán thương vụ."
+    },
+    {
+      "id": "tag-technology",
+      "slug": "technology-devices",
+      "name": "Công nghệ & Kỹ thuật số",
+      "category": "topic",
+      "description": "Thiết bị điện tử, phần mềm, internet và mạng xã hội."
+    },
+    {
+      "id": "tag-animals",
+      "slug": "animals-nature",
+      "name": "Động vật & Sinh vật",
+      "category": "topic",
+      "description": "Động vật nuôi, hoang dã, chim muông và đời sống sinh vật."
+    },
+    {
+      "id": "tag-weather",
+      "slug": "weather-climate",
+      "name": "Thời tiết & Môi trường",
+      "category": "topic",
+      "description": "Hiện tượng thời tiết, khí hậu, mùa và môi trường tự nhiên."
+    },
+    {
+      "id": "tag-sports",
+      "slug": "sports-fitness",
+      "name": "Thể thao & Rèn luyện",
+      "category": "topic",
+      "description": "Các môn thể thao, bài tập rèn luyện và dụng cụ thi đấu."
+    },
+    {
+      "id": "tag-entertainment",
+      "slug": "entertainment-arts",
+      "name": "Giải trí & Nghệ thuật",
+      "category": "topic",
+      "description": "Âm nhạc, phim ảnh, sách báo và hoạt động giải trí, sở thích."
+    },
+    {
+      "id": "tag-emotions",
+      "slug": "feelings-emotions",
+      "name": "Cảm xúc & Tính cách",
+      "category": "topic",
+      "description": "Tâm trạng, cảm xúc cá nhân và nét tính cách con người."
+    },
+    {
+      "id": "tag-shopping",
+      "slug": "shopping-services",
+      "name": "Mua sắm & Dịch vụ",
+      "category": "topic",
+      "description": "Mua sắm hàng quán, giá cả, thanh toán và dịch vụ khách hàng."
     },
     {
       "id": "tag-idiom",
       "slug": "idioms",
       "name": "Thành ngữ (Idioms)",
       "category": "grammar",
-      "description": "Thành ngữ tiếng Anh thông dụng."
+      "description": "Thành ngữ tiếng Anh thông dụng và cách diễn đạt bóng bẩy."
     },
     {
-      "id": "tag-travel",
-      "slug": "travel",
-      "name": "Du lịch & Di chuyển",
-      "category": "topic",
-      "description": "Từ vựng dùng khi đi lại, du lịch, hỏi đường."
+      "id": "tag-phrasal-verbs",
+      "slug": "phrasal-verbs",
+      "name": "Cụm động từ (Phrasal Verbs)",
+      "category": "grammar",
+      "description": "Các cụm động từ thường gặp trong văn nói và văn viết."
+    },
+    {
+      "id": "tag-collocations",
+      "slug": "collocations",
+      "name": "Cụm từ cố định (Collocations)",
+      "category": "grammar",
+      "description": "Các kết hợp từ tự nhiên thường đi liền với nhau trong tiếng Anh."
     }
   ]
 }

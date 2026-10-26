@@ -1,6 +1,11 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+# UTF-8 khong BOM (tranh loi font tieng Viet tren Windows PowerShell 5.1)
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding           = [System.Text.Encoding]::UTF8
+$UTF8NoBom = [System.Text.UTF8Encoding]::new($false)
+
 $OXFORD_JSON  = "D:\oxford-5000-vocabulary-audio-definition-main\data\oxford_5000.json"
 $PROJECT_ROOT = "D:\Projects\other\vien"
 $OUTPUT_DIR   = "$PROJECT_ROOT\assets\seed\headwords"
@@ -200,8 +205,10 @@ foreach ($level in $CEFR_ORDER) {
     $filename = "oxford_$level.json"
     $outPath  = "$OUTPUT_DIR\$filename"
 
+    # -EscapeHandling EscapeNonAscii: giu nguyen ky tu Unicode (tieng Viet) thay vi escape thanh \uXXXX
+    # Fallback: PS 5.1 khong co -EscapeHandling nen dung replace thu cong neu can
     $jsonStr = $payload | ConvertTo-Json -Depth 20
-    [System.IO.File]::WriteAllText($outPath, $jsonStr, [System.Text.UTF8Encoding]::new($false))
+    [System.IO.File]::WriteAllText($outPath, $jsonStr, $UTF8NoBom)
 
     $sizeKb = [math]::Round((Get-Item $outPath).Length / 1024)
     Write-Host "      $filename  ($($words.Count) words, $sizeKb KB)"
@@ -231,7 +238,8 @@ foreach ($f in $generatedFiles) {
 }
 
 $manifestJson = $manifest | ConvertTo-Json -Depth 5
-Set-Content -Path $MANIFEST -Value $manifestJson -Encoding UTF8
+# Dung WriteAllText thay Set-Content de tranh BOM tren PS 5.1
+[System.IO.File]::WriteAllText($MANIFEST, $manifestJson, $UTF8NoBom)
 Write-Host "      +$added entries moi them vao manifest"
 
 Write-Host ""
