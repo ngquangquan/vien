@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../shared/widgets/cefr_badge.dart';
+import '../../../shared/widgets/speak_button.dart';
 import '../data/review_repository.dart';
 
 class ReviewScreen extends StatefulWidget {
@@ -185,24 +186,49 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        Text(
-                          current.title,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                current.title,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            SpeakButton(
+                              text: current.title,
+                              iconSize: 28,
+                              tooltip: 'Nghe phát âm',
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 16),
                         if (current.exampleTexts.isNotEmpty) ...[
-                          Text(
-                            'Ví dụ: "${current.exampleTexts.first}"',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontStyle: FontStyle.italic,
-                              fontSize: 15,
-                              color: Colors.grey.shade700,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  'Ví dụ: "${current.exampleTexts.first}"',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    fontSize: 15,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
+                              ),
+                              SpeakButton(
+                                text: current.exampleTexts.first,
+                                iconSize: 18,
+                                tooltip: 'Nghe câu ví dụ',
+                              ),
+                            ],
                           ),
                         ],
                         const SizedBox(height: 24),

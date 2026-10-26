@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../shared/widgets/cefr_badge.dart';
+import '../../../shared/widgets/speak_button.dart';
 import '../data/phrases_repository.dart';
 import '../domain/models/phrase_models.dart';
 import 'phrase_form_screen.dart';
@@ -188,6 +189,12 @@ class _PhraseDetailScreenState extends State<PhraseDetailScreen> {
                             ),
                           ),
                           CefrBadge(level: phr.cefrLevel, fontSize: 14),
+                          const SizedBox(width: 8),
+                          SpeakButton(
+                            text: phr.phrase,
+                            tooltip: 'Nghe phát âm cụm từ',
+                            iconSize: 26,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -307,11 +314,24 @@ class _PhraseDetailScreenState extends State<PhraseDetailScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    '• ${ex.englishText}',
-                                    style: const TextStyle(
-                                      fontStyle: FontStyle.italic,
-                                    ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          '• ${ex.englishText}',
+                                          style: const TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                        ),
+                                      ),
+                                      SpeakButton(
+                                        text: ex.englishText,
+                                        iconSize: 18,
+                                        tooltip: 'Nghe câu ví dụ',
+                                        padding: EdgeInsets.zero,
+                                      ),
+                                    ],
                                   ),
                                   if (ex.vietnameseText != null)
                                     Padding(
