@@ -9820,11 +9820,12 @@
                                              "meaningVi":  "sạch sẽ, không bẩn",
                                              "cefrLevel":  "A1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
+                                             "domainLabel":  "home",
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Sạch sẽ: keep something clean; clean hands/clothes. Trái nghĩa: dirty.",
                                              "isActive":  1,
                                              "tags":  [
+                                                          "tag-daily",
                                                           "tag-home"
                                                       ],
                                              "examples":  [
@@ -9845,11 +9846,12 @@
                                              "meaningVi":  "lau chùi, quét dọn, làm sạch",
                                              "cefrLevel":  "A1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "domainLabel":  "home",
+                                             "grammarNote":  "[transitive, intransitive]",
+                                             "usageNote":  "Lau dọn, làm sạch: clean the house/room/teeth. Cụm thường gặp: clean up.",
                                              "isActive":  1,
                                              "tags":  [
+                                                          "tag-daily",
                                                           "tag-home"
                                                       ],
                                              "examples":  [
@@ -10649,11 +10651,12 @@
                                              "cefrLevel":  "A1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[intransitive]",
+                                             "usageNote":  "Đến, tới: come here; come from (+ place = đến từ đâu); come to school. Trái nghĩa: go.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily",
+                                                          "tag-travel"
                                                       ],
                                              "examples":  [
                                                               {
@@ -10710,10 +10713,10 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Phổ biến, thông thường (a common name/mistake) hoặc chung (have something in common = có điểm chung). Trái nghĩa: rare, uncommon.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily"
                                                       ],
                                              "examples":  [
                                                               {
@@ -13998,12 +14001,13 @@
                                              "meaningVi":  "Bẩn thỉu, dơ bẩn, không sạch sẽ",
                                              "cefrLevel":  "A1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
+                                             "domainLabel":  "home",
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Dơ bẩn, bẩn thỉu: dirty hands/dishes. Trái nghĩa: clean.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily",
+                                                          "tag-home"
                                                       ],
                                              "examples":  [
                                                               {
@@ -15347,10 +15351,10 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Sớm: an early train; early morning; in the early 2000s. Trái nghĩa: late.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily"
                                                       ],
                                              "examples":  [
                                                               {
@@ -15372,10 +15376,10 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Sớm: wake up early; arrive early. Trái nghĩa: late.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily"
                                                       ],
                                              "examples":  [
                                                               {
@@ -26032,12 +26036,13 @@
                                              "meaningVi":  "đói, cảm giác muốn ăn",
                                              "cefrLevel":  "A1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
+                                             "domainLabel":  "food",
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Đói bụng: feel/be hungry; go hungry. Trái nghĩa: full.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-food-drink",
+                                                          "tag-daily"
                                                       ],
                                              "examples":  [
                                                               {
@@ -26089,11 +26094,12 @@
                                              "cefrLevel":  "A1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[countable]",
+                                             "usageNote":  "Chồng (người đàn ông đã kết hôn): her husband. Phân biệt với wife (vợ).",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-family",
+                                                          "tag-daily"
                                                       ],
                                              "examples":  [
                                                               {
@@ -26307,11 +26313,12 @@
                                              "cefrLevel":  "A1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[countable]",
+                                             "usageNote":  "Ý tưởng, ý kiến: have a good idea; that\u0027s a great idea; have no idea (= hoàn toàn không biết).",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily",
+                                                          "tag-education"
                                                       ],
                                              "examples":  [
                                                               {
@@ -35382,10 +35389,10 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Mới: a new car/book; Happy New Year. Trái nghĩa: old.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily"
                                                       ],
                                              "examples":  [
                                                               {
@@ -35707,10 +35714,11 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Dễ chịu, tốt bụng, đẹp: nice to meet you; have a nice day; be nice to somebody.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily",
+                                                          "tag-emotions"
                                                       ],
                                              "examples":  [
                                                               {
@@ -47066,10 +47074,10 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Số 7: seven days a week; at seven o\u0027clock.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily"
                                                       ],
                                              "examples":  [
                                                               {
@@ -47122,10 +47130,10 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Số 17: seventeen years old; seventeen people.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily"
                                                       ],
                                              "examples":  [
 
@@ -47172,10 +47180,10 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Số 70: seventy percent; in his seventies (= trong độ tuổi 70-79).",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily"
                                                       ],
                                              "examples":  [
 
@@ -48373,10 +48381,10 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Số 6: six months; at six o\u0027clock; six of one and half a dozen of the other.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily"
                                                       ],
                                              "examples":  [
                                                               {
@@ -48429,10 +48437,10 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Số 16: sweet sixteen; sixteen years old.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily"
                                                       ],
                                              "examples":  [
 
@@ -48839,10 +48847,10 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Nhỏ, bé: a small town/house; small size (size S). Trái nghĩa: big, large.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily"
                                                       ],
                                              "examples":  [
                                                               {
@@ -53142,10 +53150,10 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Số 10: ten out of ten; ten years ago; top ten.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily"
                                                       ],
                                              "examples":  [
                                                               {
@@ -53255,10 +53263,11 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Kinh khủng, tồi tệ: a terrible mistake/accident; feel terrible. Đồng nghĩa: awful, horrible.",
                                              "isActive":  1,
                                              "tags":  [
-
+                                                          "tag-daily",
+                                                          "tag-emotions"
                                                       ],
                                              "examples":  [
                                                               {
