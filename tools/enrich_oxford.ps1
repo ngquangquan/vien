@@ -2,11 +2,15 @@
 # Bo sung cac truong con thieu cho cac file oxford_*.json bang Gemini API:
 #   - inflections       (cac dang bien doi: past, plural, comparative...)
 #   - grammarNote       (ghi chu ngu phap)
-#   - usageNote         (ghi chu cach dung)
+#   - usageNote         (ghi chu cach dung bang tieng Viet)
 #   - registerLabel     (nhan van phong: formal/informal/spoken...)
+#   - domainLabel       (linh vuc: computing/business/law/medical/sports...)
 #   - tags              (gan tag ids tu tags.json cho tung sense)
+#   - meaningVi         (dich nghia tieng Viet ngan gon cho tung sense)
 #   - examples them     (bo sung them vi du neu sense khong co example)
 #   - vietnameseText    (dich cac example con null)
+#   - notes             (ghi chu cap headword: tu de nham, collocation, etymology)
+#   - example.note      (ghi chu cau truc / idiom rut ra tu vi du)
 #   - strip audioAssetKey (xoa truong nay neu khong can)
 #
 # Cach dung:
@@ -15,14 +19,14 @@
 #
 # Tuy chon:
 #   -CefrLevel a1                  chi xu ly 1 file (a1/a2/b1/b2/c1)
-#   -Mode inflections              chi chay 1 mode:
-#                                    inflections | grammar | tags | examples | translate | strip-audio | all
+#   -Mode grammar                  chi chay 1 mode:
+#                                    grammar | tags | meaning | examples | translate | notes | strip-audio | all
 #   -BatchSize 20                  so items moi request (default 20)
-#   -DryRun                        in prompt, khong goi API / ghi file
+#   -DryRun                        in thong tin batch, khong goi API / ghi file
 
 param(
     [string]$CefrLevel  = "",
-    [ValidateSet("all","inflections","grammar","tags","examples","translate","strip-audio")]
+    [ValidateSet("all","grammar","inflections","tags","meaning","examples","translate","notes","strip-audio")]
     [string]$Mode       = "all",
     [int]   $BatchSize  = 20,
     [switch]$DryRun
@@ -42,6 +46,9 @@ function Write-Utf8([string]$path, [string]$text) {
     [System.IO.File]::WriteAllText($path, $text, $UTF8NoBom)
 }
 
+# ---------------------------------------------------------------------------
+# Duong dan
+# ---------------------------------------------------------------------------
 $PROJECT_ROOT  = "D:\Projects\other\vien"
 $OUTPUT_DIR    = "$PROJECT_ROOT\assets\seed\headwords"
 $TAGS_FILE     = "$PROJECT_ROOT\assets\seed\tags\tags.json"
@@ -49,18 +56,18 @@ $API_KEY       = $env:GEMINI_API_KEY
 $API_URL       = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=$API_KEY"
 
 if (-not $DryRun -and $Mode -ne "strip-audio" -and -not $API_KEY) {
-    Write-Host "ERROR: Set bien moi truong GEMINI_API_KEY truoc khi chay."
+    Write-Host "ERROR: Set bien moi truong GEMINI_API_KEY truoc khi chay." -ForegroundColor Red
     exit 1
 }
 
 # ---------------------------------------------------------------------------
-# Doc danh sach tags (chi lay id va slug de gui vao prompt cho gon)
+# Doc danh sach tags
 # ---------------------------------------------------------------------------
-$tagsData = Read-Utf8 $TAGS_FILE | ConvertFrom-Json
-$TAG_LIST = $tagsData.tags | ForEach-Object {
+$tagsData      = Read-Utf8 $TAGS_FILE | ConvertFrom-Json
+$TAG_LIST      = $tagsData.tags | ForEach-Object {
     [pscustomobject]@{ id = $_.id; slug = $_.slug; name = $_.name }
 }
-$TAG_IDS = $tagsData.tags | ForEach-Object { $_.id }
+$TAG_IDS       = $tagsData.tags | ForEach-Object { $_.id }
 $TAG_LIST_JSON = $TAG_LIST | ConvertTo-Json -Compress
 
 # ---------------------------------------------------------------------------
@@ -79,7 +86,7 @@ Write-Host "Mode: $Mode  |  Files: $($files.Count)  |  BatchSize: $BatchSize  | 
 Write-Host ""
 
 # ---------------------------------------------------------------------------
-# Ham goi Gemini API chung
+# Ham goi Gemini API
 # ---------------------------------------------------------------------------
 function Invoke-Gemini([string]$prompt) {
     $body = [pscustomobject]@{
@@ -96,14 +103,14 @@ function Invoke-Gemini([string]$prompt) {
 
     $bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($body)
     try {
-        $raw      = Invoke-WebRequest -Uri $API_URL -Method POST `
-                        -ContentType "application/json; charset=utf-8" `
-                        -Body $bodyBytes -UseBasicParsing
-        $ms = $raw.RawContentStream; $ms.Position = 0
-        $reader   = New-Object System.IO.StreamReader($ms, [System.Text.Encoding]::UTF8)
-        $response = $reader.ReadToEnd() | ConvertFrom-Json
-        $text     = $response.candidates[0].content.parts[0].text
-        $text     = $text -replace '(?s)^```json\s*', '' -replace '(?s)```\s*$', ''
+        $raw    = Invoke-WebRequest -Uri $API_URL -Method POST `
+                      -ContentType "application/json; charset=utf-8" `
+                      -Body $bodyBytes -UseBasicParsing
+        $ms     = $raw.RawContentStream; $ms.Position = 0
+        $reader = New-Object System.IO.StreamReader($ms, [System.Text.Encoding]::UTF8)
+        $resp   = $reader.ReadToEnd() | ConvertFrom-Json
+        $text   = $resp.candidates[0].content.parts[0].text
+        $text   = $text -replace '(?s)^```json\s*', '' -replace '(?s)```\s*$', ''
         return $text.Trim() | ConvertFrom-Json
     } catch {
         Write-Host "  [WARN] API error: $($_.Exception.Message)" -ForegroundColor Yellow
@@ -128,7 +135,7 @@ function Write-DataFile($data, $file) {
 }
 
 # ---------------------------------------------------------------------------
-# PASS 1: INFLECTIONS + GRAMMAR + REGISTER
+# PASS 1: GRAMMAR - inflections + grammarNote + usageNote + registerLabel + domainLabel
 # ---------------------------------------------------------------------------
 function Run-GrammarPass($data, $file) {
     $pending = [System.Collections.Generic.List[object]]::new()
@@ -136,13 +143,16 @@ function Run-GrammarPass($data, $file) {
 
     for ($hi = 0; $hi -lt $data.headwords.Count; $hi++) {
         $hw = $data.headwords[$hi]
-        # Inflections và Grammar được update cùng nhau trong pass này.
-        # Nhiều từ không có biến hình (inflections = []), nên chỉ cần kiểm tra xem đã có grammar/usage note hay chưa.
-        $hasGrammar = ($hw.senses | Where-Object {
-            -not [string]::IsNullOrWhiteSpace($_.grammarNote) -or `
-            -not [string]::IsNullOrWhiteSpace($_.usageNote) -or `
-            -not [string]::IsNullOrWhiteSpace($_.registerLabel)
-        } | Measure-Object).Count -gt 0 -or ($hw.inflections.Count -gt 0)
+
+        # Kiem tra xem headword da duoc xu ly chua (co bat ky truong nao da co gia tri)
+        $hasGrammar = ($hw.inflections.Count -gt 0) -or (
+            ($hw.senses | Where-Object {
+                -not [string]::IsNullOrWhiteSpace($_.grammarNote) -or
+                -not [string]::IsNullOrWhiteSpace($_.usageNote)   -or
+                -not [string]::IsNullOrWhiteSpace($_.registerLabel) -or
+                -not [string]::IsNullOrWhiteSpace($_.domainLabel)
+            } | Measure-Object).Count -gt 0
+        )
 
         if (-not $hasGrammar) {
             $hwMap[$hw.id] = $hi
@@ -156,7 +166,7 @@ function Run-GrammarPass($data, $file) {
         }
     }
 
-    Write-Host "  [Grammar/Inflections] Pending: $($pending.Count) headwords"
+    Write-Host "  [Grammar] Pending: $($pending.Count) headwords"
     if ($pending.Count -eq 0) { return }
 
     $i = 0
@@ -165,24 +175,29 @@ function Run-GrammarPass($data, $file) {
         $batch    = $pending[$i..($end-1)]
         $batchNum = [Math]::Floor($i / $BatchSize) + 1
         $total    = [Math]::Ceiling($pending.Count / $BatchSize)
-        Write-Host "  Batch $batchNum/$total (words $i-$($end-1))..." -NoNewline
+        Write-Host "  Grammar Batch $batchNum/$total (words $i-$($end-1))..." -NoNewline
 
         $inputJson = $batch | ConvertTo-Json -Depth 5 -Compress
         $prompt = @"
-Ban la bien tap tu dien Anh-Viet chuyen nghiep. Cho moi headword trong mang JSON duoi day, hay tra ve:
+You are a professional English-Vietnamese dictionary editor. For each headword in the JSON array below, return:
 
-1. "inflections": mang cac dang bien doi chinh (vi du: noun->plural, verb->past/pastParticiple/presentParticiple, adj->comparative/superlative). Bat quy tac thi liet ke. Neu khong bien doi thi de [].
-   Moi phan tu: {"form":"ten_dang","value":"gia_tri"}
-   Cac form hop le: plural, past, pastParticiple, presentParticiple, thirdPerson, comparative, superlative
+1. "inflections": array of main inflected forms.
+   - noun -> plural (if irregular or non-obvious)
+   - verb -> past, pastParticiple, presentParticiple, thirdPerson (only if irregular)
+   - adjective/adverb -> comparative, superlative (only if irregular)
+   - Regular forms (e.g. +s, +ed, +ing) can be omitted (return []).
+   - Each element: {"form":"form_name","value":"form_value"}
+   - Valid forms: plural, past, pastParticiple, presentParticiple, thirdPerson, comparative, superlative
 
-2. "senses": mang tuong ung voi senses, moi phan tu:
-   - "id": copy y chang tu input
-   - "grammarNote": ghi chu ngu phap ngan ([usually before noun], [not used in progressive]...) hoac null
-   - "usageNote": ghi chu cach dung ngan bang tieng Viet (1 cau) hoac null
-   - "registerLabel": "formal"|"informal"|"spoken"|"written"|"technical"|"literary"|"old-fashioned" hoac null
+2. "senses": array matching input senses, each element:
+   - "id": copy exactly from input
+   - "grammarNote": short Oxford-style grammar label in brackets, e.g. "[countable]", "[uncountable]", "[transitive]", "[intransitive]", "[usually before noun]", "[not used in progressive]", "[+ to inf]", "[+ that clause]" — or null if none applies
+   - "usageNote": one short Vietnamese sentence about typical usage context/pattern — or null
+   - "registerLabel": one of "formal"|"informal"|"spoken"|"written"|"technical"|"literary"|"old-fashioned" — or null
+   - "domainLabel": subject field if clearly domain-specific, e.g. "computing"|"business"|"law"|"medicine"|"science"|"mathematics"|"music"|"sports"|"architecture"|"history"|"politics"|"economics"|"psychology"|"education"|"military"|"religion"|"art"|"linguistics" — or null for general vocabulary
 
-Tra ve DUNG mot mang JSON, khong markdown:
-[{"id":"hw-id","inflections":[...],"senses":[{"id":"...","grammarNote":"...","usageNote":"...","registerLabel":"..."},...]}]
+Return ONLY a JSON array, no markdown, no explanation:
+[{"id":"hw-id","inflections":[...],"senses":[{"id":"...","grammarNote":"...","usageNote":"...","registerLabel":"...","domainLabel":"..."},...]}]
 
 Input: $inputJson
 "@
@@ -208,9 +223,10 @@ Input: $inputJson
                 foreach ($rs in $r.senses) {
                     if (-not $rs.id -or -not $sm.ContainsKey($rs.id)) { continue }
                     $sense = $hw.senses[$sm[$rs.id]]
-                    if ($null -eq $sense.grammarNote   -and $rs.grammarNote)   { $sense.grammarNote   = $rs.grammarNote   }
-                    if ($null -eq $sense.usageNote     -and $rs.usageNote)     { $sense.usageNote     = $rs.usageNote     }
+                    if ($null -eq $sense.grammarNote   -and $rs.grammarNote)   { $sense.grammarNote   = $rs.grammarNote }
+                    if ($null -eq $sense.usageNote     -and $rs.usageNote)     { $sense.usageNote     = $rs.usageNote }
                     if ($null -eq $sense.registerLabel -and $rs.registerLabel) { $sense.registerLabel = $rs.registerLabel }
+                    if ($null -eq $sense.domainLabel   -and $rs.domainLabel)   { $sense.domainLabel   = $rs.domainLabel }
                 }
             }
             $applied++
@@ -224,7 +240,73 @@ Input: $inputJson
 }
 
 # ---------------------------------------------------------------------------
-# PASS 2: TAGS - gan tag ids cho tung sense
+# PASS 2: MEANING - dich meaningVi cho tung sense con null
+# ---------------------------------------------------------------------------
+function Run-MeaningPass($data, $file) {
+    $pending  = [System.Collections.Generic.List[object]]::new()
+    $senseMap = @{}
+
+    for ($hi = 0; $hi -lt $data.headwords.Count; $hi++) {
+        for ($si = 0; $si -lt $data.headwords[$hi].senses.Count; $si++) {
+            $sense = $data.headwords[$hi].senses[$si]
+            if ($null -eq $sense.meaningVi -or $sense.meaningVi -eq "") {
+                $senseMap[$sense.id] = @($hi, $si)
+                $pending.Add([pscustomobject]@{
+                    id  = $sense.id
+                    pos = $sense.partOfSpeech
+                    def = $sense.definitionEn
+                })
+            }
+        }
+    }
+
+    Write-Host "  [MeaningVi] Pending: $($pending.Count) senses"
+    if ($pending.Count -eq 0) { return }
+
+    $batchSz = $BatchSize * 2
+    $i = 0
+    while ($i -lt $pending.Count) {
+        $end      = [Math]::Min($i + $batchSz, $pending.Count)
+        $batch    = $pending[$i..($end-1)]
+        $batchNum = [Math]::Floor($i / $batchSz) + 1
+        $total    = [Math]::Ceiling($pending.Count / $batchSz)
+        Write-Host "  Meaning Batch $batchNum/$total (senses $i-$($end-1))..." -NoNewline
+
+        $inputJson = $batch | ConvertTo-Json -Compress
+        $prompt = @"
+Ban la bien tap tu dien Anh-Viet chuyen nghiep. Cho moi sense duoi day, hay dich "def" (dinh nghia tieng Anh) sang tieng Viet ngan gon theo phong cach tu dien (khong giai thich, chi neu nghia chinh, 3-12 tu, dung chu thuong tru ten rieng).
+
+Tra ve DUNG mot mang JSON (khong markdown, khong giai thich):
+[{"id":"...","vi":"ban dich tieng Viet ngan gon"}]
+
+Input: $inputJson
+"@
+
+        if ($DryRun) { Write-Host " [DRY RUN]"; $i = $end; continue }
+
+        $results = Invoke-WithRetry $prompt
+        if ($null -eq $results) { Write-Host " FAILED" -ForegroundColor Red; $i = $end; continue }
+
+        $applied = 0
+        foreach ($r in $results) {
+            if (-not $r.id -or -not $senseMap.ContainsKey($r.id)) { continue }
+            $pos   = $senseMap[$r.id]
+            $sense = $data.headwords[$pos[0]].senses[$pos[1]]
+            if ($r.vi -and ($null -eq $sense.meaningVi -or $sense.meaningVi -eq "")) {
+                $sense.meaningVi = $r.vi
+                $applied++
+            }
+        }
+
+        Write-Host " OK ($applied applied)" -ForegroundColor Green
+        Start-Sleep -Milliseconds 600
+        $i = $end
+        Write-DataFile $data $file
+    }
+}
+
+# ---------------------------------------------------------------------------
+# PASS 3: TAGS - gan tag ids cho tung sense
 # ---------------------------------------------------------------------------
 function Run-TagsPass($data, $file) {
     $pending  = [System.Collections.Generic.List[object]]::new()
@@ -233,7 +315,6 @@ function Run-TagsPass($data, $file) {
     for ($hi = 0; $hi -lt $data.headwords.Count; $hi++) {
         for ($si = 0; $si -lt $data.headwords[$hi].senses.Count; $si++) {
             $sense = $data.headwords[$hi].senses[$si]
-            # Chi xu ly sense chua co tag nao
             if ($sense.tags.Count -eq 0) {
                 $senseMap[$sense.id] = @($hi, $si)
                 $pending.Add([pscustomobject]@{
@@ -283,8 +364,6 @@ $inputJson
             if (-not $r.id -or -not $senseMap.ContainsKey($r.id)) { continue }
             $pos   = $senseMap[$r.id]
             $sense = $data.headwords[$pos[0]].senses[$pos[1]]
-
-            # Loc: chi giu cac tag id hop le
             if ($r.tags) {
                 $validTags = @($r.tags | Where-Object { $TAG_IDS -contains $_ })
                 $sense.tags = $validTags
@@ -300,7 +379,7 @@ $inputJson
 }
 
 # ---------------------------------------------------------------------------
-# PASS 3: EXAMPLES - bo sung vi du cho sense khong co example
+# PASS 4: EXAMPLES - bo sung vi du cho sense khong co example
 # ---------------------------------------------------------------------------
 function Run-ExamplesPass($data, $file) {
     $pending  = [System.Collections.Generic.List[object]]::new()
@@ -333,10 +412,10 @@ function Run-ExamplesPass($data, $file) {
 
         $inputJson = $batch | ConvertTo-Json -Compress
         $prompt = @"
-Ban la bien tap tu dien chuyen nghiep. Cho moi sense duoi day, hay tao 1 vi du su dung tieng Anh ngan gon, tu nhien, phu hop cap do A1-B2.
+You are a professional dictionary editor. For each sense below, create one short, natural English example sentence suitable for B1-B2 learners. Also provide a concise Vietnamese translation and, if the example illustrates a notable collocation, structure, or idiom, add a brief Vietnamese note (e.g. "Cau truc: rely on somebody" or "Collocation: take advantage of").
 
-Tra ve DUNG mot mang JSON (khong markdown):
-[{"id":"...","en":"vi du tieng Anh","vi":"ban dich tieng Viet ngan gon"}]
+Return ONLY a JSON array (no markdown):
+[{"id":"...","en":"English example","vi":"Vietnamese translation","note":"Vietnamese note or null"}]
 
 Input: $inputJson
 "@
@@ -352,11 +431,12 @@ Input: $inputJson
             $pos   = $senseMap[$r.id]
             $sense = $data.headwords[$pos[0]].senses[$pos[1]]
             if ($sense.examples.Count -eq 0 -and $r.en) {
+                $noteVal = if ($r.note) { $r.note } else { $null }
                 $sense.examples = @([pscustomobject]@{
                     id             = "ex-$($sense.id)-1"
                     englishText    = $r.en
-                    vietnameseText = $r.vi
-                    note           = $null
+                    vietnameseText = if ($r.vi) { $r.vi } else { $null }
+                    note           = $noteVal
                     sortOrder      = 1
                 })
                 $applied++
@@ -371,7 +451,7 @@ Input: $inputJson
 }
 
 # ---------------------------------------------------------------------------
-# PASS 4: TRANSLATE - dich vietnameseText cua examples con null
+# PASS 5: TRANSLATE - dich vietnameseText cua examples con null
 # ---------------------------------------------------------------------------
 function Run-TranslatePass($data, $file) {
     $pending = [System.Collections.Generic.List[object]]::new()
@@ -390,10 +470,10 @@ function Run-TranslatePass($data, $file) {
         }
     }
 
-    Write-Host "  [Translate] Pending: $($pending.Count) examples"
+    Write-Host "  [Translate Examples] Pending: $($pending.Count) examples"
     if ($pending.Count -eq 0) { return }
 
-    $batchSz = $BatchSize * 2   # translate nhanh hon, batch lon hon
+    $batchSz = $BatchSize * 2
     $i = 0
     while ($i -lt $pending.Count) {
         $end      = [Math]::Min($i + $batchSz, $pending.Count)
@@ -404,7 +484,7 @@ function Run-TranslatePass($data, $file) {
 
         $inputJson = $batch | ConvertTo-Json -Compress
         $prompt = @"
-Ban la bien tap tu dien Anh-Viet. Dich ngan gon, tu nhien, phong cach tu dien.
+Ban la bien tap tu dien Anh-Viet. Dich ngan gon, tu nhien, phong cach tu dien (khong giai thich them, chi dich nghia).
 Tra ve DUNG mot mang JSON (khong markdown):
 [{"id":"...","vi":"ban dich tieng Viet"}]
 Input: $inputJson
@@ -431,7 +511,139 @@ Input: $inputJson
 }
 
 # ---------------------------------------------------------------------------
-# PASS 5: STRIP AUDIO - xoa truong audioAssetKey khoi pronunciations
+# PASS 6: NOTES - ghi chu cap headword (notes) va example.note
+# ---------------------------------------------------------------------------
+function Run-NotesPass($data, $file) {
+    # 6a: headword.notes - chi xu ly headword chua co notes
+    $pendingHw = [System.Collections.Generic.List[object]]::new()
+    $hwMap     = @{}
+
+    for ($hi = 0; $hi -lt $data.headwords.Count; $hi++) {
+        $hw = $data.headwords[$hi]
+        if ($null -eq $hw.notes -or $hw.notes -eq "") {
+            $hwMap[$hw.id] = $hi
+            $pendingHw.Add([pscustomobject]@{
+                id     = $hw.id
+                word   = $hw.spelling
+                senses = @($hw.senses | ForEach-Object {
+                    [pscustomobject]@{ pos = $_.partOfSpeech; def = $_.definitionEn }
+                })
+            })
+        }
+    }
+
+    Write-Host "  [Notes/HW] Pending: $($pendingHw.Count) headwords"
+
+    if ($pendingHw.Count -gt 0) {
+        $i = 0
+        while ($i -lt $pendingHw.Count) {
+            $end      = [Math]::Min($i + $BatchSize, $pendingHw.Count)
+            $batch    = $pendingHw[$i..($end-1)]
+            $batchNum = [Math]::Floor($i / $BatchSize) + 1
+            $total    = [Math]::Ceiling($pendingHw.Count / $BatchSize)
+            Write-Host "  HW Notes Batch $batchNum/$total (words $i-$($end-1))..." -NoNewline
+
+            $inputJson = $batch | ConvertTo-Json -Depth 4 -Compress
+            $prompt = @"
+Ban la bien tap tu dien Anh-Viet. Cho moi headword duoi day, neu co dieu gi DAC BIET can luu y (tu de nham, collocation quan trong, diem ngu phap dac biet, hoac nguon goc thu vi) thi viet 1-2 cau ngan gon bang tieng Viet. Neu tu qua binh thuong thi de null.
+
+Tra ve DUNG mot mang JSON (khong markdown):
+[{"id":"hw-id","notes":"ghi chu tieng Viet ngan gon hoac null"}]
+
+Input: $inputJson
+"@
+
+            if ($DryRun) { Write-Host " [DRY RUN]"; $i = $end; continue }
+
+            $results = Invoke-WithRetry $prompt
+            if ($null -eq $results) { Write-Host " FAILED" -ForegroundColor Red; $i = $end; continue }
+
+            $applied = 0
+            foreach ($r in $results) {
+                if (-not $r.id -or -not $hwMap.ContainsKey($r.id)) { continue }
+                $hw = $data.headwords[$hwMap[$r.id]]
+                if ($r.notes -and $r.notes -ne "null") {
+                    $hw.notes = $r.notes
+                    $applied++
+                }
+            }
+
+            Write-Host " OK ($applied applied)" -ForegroundColor Green
+            Start-Sleep -Milliseconds 600
+            $i = $end
+            Write-DataFile $data $file
+        }
+    }
+
+    # 6b: example.note - chi xu ly example co note = null VÀ englishText co dau hieu la cau truc / collocation / idiom
+    $pendingEx = [System.Collections.Generic.List[object]]::new()
+    $exMap     = @{}
+
+    for ($hi = 0; $hi -lt $data.headwords.Count; $hi++) {
+        for ($si = 0; $si -lt $data.headwords[$hi].senses.Count; $si++) {
+            $sense = $data.headwords[$hi].senses[$si]
+            for ($ei = 0; $ei -lt $sense.examples.Count; $ei++) {
+                $ex = $sense.examples[$ei]
+                # Chi gui nhung example ma note chua co va englishText co vet cau truc (co something/somebody hoac dau ngoac don)
+                if (($null -eq $ex.note -or $ex.note -eq "") -and
+                    ($ex.englishText -match "somebody|someone|something|\(=|Idiom:" )) {
+                    $exMap[$ex.id] = @($hi, $si, $ei)
+                    $pendingEx.Add([pscustomobject]@{
+                        id = $ex.id
+                        en = $ex.englishText
+                    })
+                }
+            }
+        }
+    }
+
+    Write-Host "  [Notes/Ex] Pending: $($pendingEx.Count) examples with structure hints"
+    if ($pendingEx.Count -eq 0) { return }
+
+    $batchSz = $BatchSize * 2
+    $i = 0
+    while ($i -lt $pendingEx.Count) {
+        $end      = [Math]::Min($i + $batchSz, $pendingEx.Count)
+        $batch    = $pendingEx[$i..($end-1)]
+        $batchNum = [Math]::Floor($i / $batchSz) + 1
+        $total    = [Math]::Ceiling($pendingEx.Count / $batchSz)
+        Write-Host "  Ex Notes Batch $batchNum/$total (ex $i-$($end-1))..." -NoNewline
+
+        $inputJson = $batch | ConvertTo-Json -Compress
+        $prompt = @"
+Ban la bien tap tu dien Anh-Viet. Moi example duoi day co the chua cau truc (pattern), collocation, hoac idiom dac biet. Neu co, viet 1 ghi chu ngan gon bang tieng Viet de giai thich cau truc do (vi du: "Cau truc: rely on somebody" hoac "Idiom: take your pick = tu chon lay"). Neu khong co gi dac biet thi de null.
+
+Tra ve DUNG mot mang JSON (khong markdown):
+[{"id":"...","note":"ghi chu tieng Viet hoac null"}]
+
+Input: $inputJson
+"@
+
+        if ($DryRun) { Write-Host " [DRY RUN]"; $i = $end; continue }
+
+        $results = Invoke-WithRetry $prompt
+        if ($null -eq $results) { Write-Host " FAILED" -ForegroundColor Red; $i = $end; continue }
+
+        $applied = 0
+        foreach ($r in $results) {
+            if (-not $r.id -or -not $exMap.ContainsKey($r.id)) { continue }
+            $pos = $exMap[$r.id]
+            $ex  = $data.headwords[$pos[0]].senses[$pos[1]].examples[$pos[2]]
+            if ($r.note -and $r.note -ne "null") {
+                $ex.note = $r.note
+                $applied++
+            }
+        }
+
+        Write-Host " OK ($applied applied)" -ForegroundColor Green
+        Start-Sleep -Milliseconds 600
+        $i = $end
+        Write-DataFile $data $file
+    }
+}
+
+# ---------------------------------------------------------------------------
+# PASS 7: STRIP AUDIO - xoa truong audioAssetKey khoi pronunciations
 # ---------------------------------------------------------------------------
 function Run-StripAudioPass($data) {
     $count = 0
@@ -454,8 +666,11 @@ foreach ($file in $files) {
 
     $data = Read-Utf8 $file.FullName | ConvertFrom-Json
 
-    if ($Mode -eq "all" -or $Mode -eq "inflections" -or $Mode -eq "grammar") {
+    if ($Mode -eq "all" -or $Mode -eq "grammar" -or $Mode -eq "inflections") {
         Run-GrammarPass $data $file
+    }
+    if ($Mode -eq "all" -or $Mode -eq "meaning") {
+        Run-MeaningPass $data $file
     }
     if ($Mode -eq "all" -or $Mode -eq "tags") {
         Run-TagsPass $data $file
@@ -465,6 +680,9 @@ foreach ($file in $files) {
     }
     if ($Mode -eq "all" -or $Mode -eq "translate") {
         Run-TranslatePass $data $file
+    }
+    if ($Mode -eq "all" -or $Mode -eq "notes") {
+        Run-NotesPass $data $file
     }
     if ($Mode -eq "all" -or $Mode -eq "strip-audio") {
         Run-StripAudioPass $data
