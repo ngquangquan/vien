@@ -43,10 +43,10 @@
                                              "definitionEn":  "to officially end a law, a system or an institution",
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
-                                             "registerLabel":  null,
-                                             "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "registerLabel":  "formal",
+                                             "domainLabel":  "politics",
+                                             "grammarNote":  "[transitive]",
+                                             "usageNote":  "Thường dùng với tân ngữ là luật lệ, chế độ, thuế khóa hoặc tục lệ lâu đời.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -99,9 +99,9 @@
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "domainLabel":  "medicine",
+                                             "grammarNote":  "[countable, uncountable]",
+                                             "usageNote":  "Thường đi với các động từ như have, perform, hoặc legalize.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -155,8 +155,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[countable, uncountable]",
+                                             "usageNote":  "Thường dùng trong cấu trúc \u0027absence from\u0027 hoặc \u0027in somebody\u0027s absence\u0027.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -210,8 +210,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[not usually before noun]",
+                                             "usageNote":  "Thường đi kèm với giới từ \u0027from\u0027 (ví dụ: absent from school/work).",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -266,7 +266,7 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Dùng để nhấn mạnh điều gì đó hoàn toàn vô lý, nực cười hoặc đi ngược lại lẽ thường.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -320,8 +320,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[singular, uncountable]",
+                                             "usageNote":  "Thường đi với cấu trúc \u0027an abundance of something\u0027 hoặc \u0027in abundance\u0027.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -375,8 +375,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[uncountable, countable]",
+                                             "usageNote":  "Thường kết hợp với các danh từ như substance, alcohol, power, hoặc human rights.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -400,8 +400,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[transitive]",
+                                             "usageNote":  "Thường có tân ngữ là chức vụ, quyền lực hoặc các chất gây nghiện (power, authority, drugs).",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -443,7 +443,10 @@
                                                  }
                                              ],
                           "inflections":  [
-
+                                              {
+                                                  "form":  "plural",
+                                                  "value":  "academies"
+                                              }
                                           ],
                           "senses":  [
                                          {
@@ -454,9 +457,9 @@
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "domainLabel":  "education",
+                                             "grammarNote":  "[countable]",
+                                             "usageNote":  "Thường dùng trong tên riêng của các học viện nghệ thuật, quân sự hoặc đào tạo chuyên môn.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -510,8 +513,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[intransitive, transitive]",
+                                             "usageNote":  "Thường nói về tốc độ phát triển kinh tế, tiến độ dự án hoặc sự tăng tốc của phương tiện.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -565,8 +568,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[uncountable, countable]",
+                                             "usageNote":  "Thường đi kèm với giới từ \u0027of\u0027 (ví dụ: acceptance of the terms/offer).",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -621,7 +624,7 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Thường đi với giới từ \u0027to\u0027 chỉ đối tượng tiếp cận (ví dụ: accessible to the public).",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -675,8 +678,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[countable]",
+                                             "usageNote":  "Thường dùng để nói về thành tựu cá nhân hoặc thành quả sau một quá trình nỗ lực lớn.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -728,10 +731,10 @@
                                              "definitionEn":  "according to a rule or the way that somebody says that something should be done",
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
-                                             "registerLabel":  null,
-                                             "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "registerLabel":  "formal",
+                                             "domainLabel":  "law",
+                                             "grammarNote":  "[uncountable]",
+                                             "usageNote":  "Hầu như luôn dùng trong cụm cố định \u0027in accordance with\u0027.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -783,10 +786,10 @@
                                              "definitionEn":  "in a way that is appropriate to what has been done or said in a particular situation",
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
-                                             "registerLabel":  null,
+                                             "registerLabel":  "formal",
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Thường đứng ở cuối câu hoặc mệnh đề để chỉ hành động tương ứng với hoàn cảnh.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -839,9 +842,9 @@
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "domainLabel":  "politics",
+                                             "grammarNote":  "[uncountable]",
+                                             "usageNote":  "Thường đi kèm với các giới từ \u0027for\u0027 (cho việc gì) và \u0027to\u0027 (trước ai).",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -895,8 +898,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[not usually before noun]",
+                                             "usageNote":  "Thường dùng trong cấu trúc \u0027hold somebody accountable\u0027 hoặc \u0027accountable to somebody for something\u0027.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -950,8 +953,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[transitive, intransitive]",
+                                             "usageNote":  "Thường dùng với tân ngữ như của cải, kiến thức, chứng cứ hoặc nợ nần.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1005,8 +1008,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[uncountable, countable]",
+                                             "usageNote":  "Thường đi với \u0027of\u0027 (ví dụ: accumulation of wealth/evidence/dust).",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1059,9 +1062,9 @@
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "domainLabel":  "law",
+                                             "grammarNote":  "[countable, uncountable]",
+                                             "usageNote":  "Thường đi với giới từ \u0027against\u0027 (nhắm vào ai) hoặc \u0027of\u0027 (về tội/lỗi gì).",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1103,7 +1106,10 @@
                                                  }
                                              ],
                           "inflections":  [
-
+                                              {
+                                                  "form":  "plural",
+                                                  "value":  "accused"
+                                              }
                                           ],
                           "senses":  [
                                          {
@@ -1114,9 +1120,9 @@
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "domainLabel":  "law",
+                                             "grammarNote":  "[singular, plural]",
+                                             "usageNote":  "Hầu như luôn đi cùng quán từ \u0027the\u0027 để chỉ bị cáo trong phiên tòa hình sự.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1169,9 +1175,9 @@
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "domainLabel":  "linguistics",
+                                             "grammarNote":  "[uncountable]",
+                                             "usageNote":  "Thường đi với các danh từ như language, knowledge hoặc skill.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1225,8 +1231,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[countable]",
+                                             "usageNote":  "Đơn vị đo diện tích đất đai phổ biến ở các nước nói tiếng Anh.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1279,9 +1285,9 @@
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "domainLabel":  "technical",
+                                             "grammarNote":  "[uncountable]",
+                                             "usageNote":  "Thường dùng khi kích hoạt tài khoản, thẻ ngân hàng, phần mềm hoặc phản ứng sinh hóa.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1334,9 +1340,9 @@
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "domainLabel":  "politics",
+                                             "grammarNote":  "[countable]",
+                                             "usageNote":  "Thường kết hợp với các lĩnh vực như political, environmental, human rights activist.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1391,7 +1397,7 @@
                                              "registerLabel":  null,
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Thường đi kèm với các danh từ chỉ vấn đề nghiêm trọng như shortage, pain, illness, crisis.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1445,8 +1451,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[uncountable, countable]",
+                                             "usageNote":  "Thường đi với giới từ to (sự thích nghi với môi trường, hoàn cảnh mới).",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1498,10 +1504,10 @@
                                              "definitionEn":  "to stick to something",
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
-                                             "registerLabel":  null,
+                                             "registerLabel":  "formal",
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[intransitive]",
+                                             "usageNote":  "Đi với giới từ to mang nghĩa dính chặt hoặc tuân thủ nghiêm ngặt quy định.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1553,10 +1559,10 @@
                                              "definitionEn":  "next to something",
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
-                                             "registerLabel":  null,
+                                             "registerLabel":  "formal",
                                              "domainLabel":  null,
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Thường đi với giới từ to để chỉ hai địa điểm hoặc vật nằm sát cạnh nhau.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1610,8 +1616,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[countable, uncountable]",
+                                             "usageNote":  "Thường đi với động từ make (make an adjustment to something).",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1663,10 +1669,10 @@
                                              "definitionEn":  "to manage and organize the affairs of a company, an organization, a country, etc.",
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
-                                             "registerLabel":  null,
+                                             "registerLabel":  "formal",
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[transitive]",
+                                             "usageNote":  "Thường dùng trong bối cảnh quản lý nhà nước, chính sách, quỹ hoặc hệ thống tổ chức.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1720,8 +1726,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[usually before noun]",
+                                             "usageNote":  "Thường đứng trước danh từ như work, support, duties, staff.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1775,8 +1781,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[countable]",
+                                             "usageNote":  "Chỉ người quản lý văn phòng, hệ thống mạng hoặc người quản lý điều hành tổ chức.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1830,8 +1836,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[uncountable, countable]",
+                                             "usageNote":  "Thường đi với giới từ to hoặc into (ví dụ: admission to university, admission into hospital).",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1885,8 +1891,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[countable]",
+                                             "usageNote":  "Thường dùng trong văn cảnh y khoa, tâm lý học hoặc giáo dục để chỉ lứa tuổi thanh thiếu niên.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1939,9 +1945,9 @@
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "domainLabel":  "law",
+                                             "grammarNote":  "[uncountable, countable]",
+                                             "usageNote":  "Dùng để chỉ hành động nhận con nuôi theo pháp luật.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -1993,10 +1999,10 @@
                                              "definitionEn":  "negative and unpleasant; not likely to produce a good result",
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
-                                             "registerLabel":  null,
+                                             "registerLabel":  "formal",
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[usually before noun]",
+                                             "usageNote":  "Thường đi với effect, reaction, impact, conditions để chỉ tác động bất lợi.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -2050,8 +2056,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[countable]",
+                                             "usageNote":  "Thường đi với giới từ of hoặc for (người ủng hộ cho một chủ trương, quyền lợi).",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -2073,10 +2079,10 @@
                                              "definitionEn":  "to support something publicly",
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
-                                             "registerLabel":  null,
+                                             "registerLabel":  "formal",
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[transitive]",
+                                             "usageNote":  "Theo sau là danh từ hoặc V-ing, không dùng với \u0027to inf\u0027.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -2129,9 +2135,9 @@
                                              "meaningVi":  null,
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
-                                             "domainLabel":  null,
+                                             "domainLabel":  "art",
                                              "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "usageNote":  "Thường đứng trước các danh từ như value, appeal, pleasure để bàn về tính thẩm mỹ.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -2185,8 +2191,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[uncountable, singular]",
+                                             "usageNote":  "Thường đi với giới từ for/towards chỉ tình cảm yêu thương nồng ấm đối với ai đó.",
                                              "isActive":  1,
                                              "tags":  [
 
@@ -2240,8 +2246,8 @@
                                              "cefrLevel":  "C1",
                                              "registerLabel":  null,
                                              "domainLabel":  null,
-                                             "grammarNote":  null,
-                                             "usageNote":  null,
+                                             "grammarNote":  "[singular, usually uncountable]",
+                                             "usageNote":  "Thường đi trong cụm \u0027in the aftermath of\u0027 (sau hậu quả của thảm họa, biến cố lớn).",
                                              "isActive":  1,
                                              "tags":  [
 
