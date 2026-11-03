@@ -5,12 +5,12 @@
     { "path": "tags/tags.json",                  "version": 1 },
     { "path": "headwords/a1.json",               "version": 1 },
     { "path": "headwords/c1.json",               "version": 1 },
-    { "path": "phrases/idioms.json",             "version": 1 },
-    { "path": "questions/general.json",          "version": 1 },
-    { "path": "headwords/oxford_a1.json",        "version": 1 },
-    { "path": "headwords/oxford_a2.json",        "version": 1 },
-    { "path": "headwords/oxford_b1.json",        "version": 1 },
-    { "path": "headwords/oxford_b2.json",        "version": 1 },
-    { "path": "headwords/oxford_c1.json",        "version": 1 }
+    { "path": "phrases/idioms.json",             "version": 2 },
+    { "path": "questions/general.json",          "version": 2 },
+    { "path": "headwords/oxford_a1.json",        "version": 2 },
+    { "path": "headwords/oxford_a2.json",        "version": 2 },
+    { "path": "headwords/oxford_b1.json",        "version": 2 },
+    { "path": "headwords/oxford_b2.json",        "version": 2 },
+    { "path": "headwords/oxford_c1.json",        "version": 2 }
   ]
 }
