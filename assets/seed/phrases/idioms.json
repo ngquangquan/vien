@@ -10218,45 +10218,6 @@
       ]
     },
     {
-      "id": "phr-piece-of-cake",
-      "phrase": "piece of cake",
-      "normalizedPhrase": "piece of cake",
-      "phraseType": "idiom",
-      "cefrLevel": "B1",
-      "notes": null,
-      "isArchived": 0,
-      "createdAtMs": 1793697075229,
-      "updatedAtMs": 1793697075229,
-      "senses": [
-        {
-          "id": "sense-phr-piece-of-cake-1",
-          "senseNumber": 1,
-          "partOfSpeech": "noun",
-          "definitionEn": "something very easy to do",
-          "meaningVi": "dễ như ăn bánh",
-          "cefrLevel": "B1",
-          "registerLabel": "informal",
-          "domainLabel": "general",
-          "grammarNote": "idiomatic expression",
-          "usageNote": "Dùng \"It's a piece of cake\" để nói việc rất dễ.",
-          "isActive": 1,
-          "tags": [
-            "tag-idiom",
-            "tag-daily"
-          ],
-          "examples": [
-            {
-              "id": "ex-phr-piece-of-cake-1-1",
-              "englishText": "The exam was a piece of cake.",
-              "vietnameseText": "Bài thi dễ như ăn bánh.",
-              "note": null,
-              "sortOrder": 1
-            }
-          ]
-        }
-      ]
-    },
-    {
       "id": "phr-square-meal",
       "phrase": "square meal",
       "normalizedPhrase": "square meal",

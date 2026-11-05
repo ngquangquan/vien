@@ -49,7 +49,7 @@ function Write-Utf8([string]$path, [string]$text) {
 # ---------------------------------------------------------------------------
 # Duong dan
 # ---------------------------------------------------------------------------
-$PROJECT_ROOT  = "D:\Projects\other\vien"
+$PROJECT_ROOT  = "D:\Projects\vien"
 $OUTPUT_DIR    = "$PROJECT_ROOT\assets\seed\headwords"
 $TAGS_FILE     = "$PROJECT_ROOT\assets\seed\tags\tags.json"
 $API_KEY       = $env:GEMINI_API_KEY

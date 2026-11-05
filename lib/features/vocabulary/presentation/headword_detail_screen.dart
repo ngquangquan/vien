@@ -263,7 +263,7 @@ class _HeadwordDetailScreenState extends State<HeadwordDetailScreen> {
                                         '${inf.form} (${inf.formType})',
                                         style: const TextStyle(fontSize: 12),
                                       ),
-                                      backgroundColor: const Color(0xFFF1F5F9),
+                                      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                                       padding: EdgeInsets.zero,
                                     );
                                   }).toList(),
@@ -331,13 +331,13 @@ class _HeadwordDetailScreenState extends State<HeadwordDetailScreen> {
                                         vertical: 3,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF0F172A),
+                                        color: Theme.of(context).colorScheme.inverseSurface,
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
                                         s.sense.partOfSpeech.toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onInverseSurface,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 11,
                                         ),
@@ -411,7 +411,7 @@ class _HeadwordDetailScreenState extends State<HeadwordDetailScreen> {
                                           t.name,
                                           style: const TextStyle(fontSize: 11),
                                         ),
-                                        backgroundColor: const Color(0xFFE2E8F0),
+                                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                                         padding: EdgeInsets.zero,
                                       );
                                     }).toList(),
