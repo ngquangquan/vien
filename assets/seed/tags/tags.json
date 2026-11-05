@@ -160,6 +160,174 @@
       "name": "Cụm từ cố định (Collocations)",
       "category": "grammar",
       "description": "Các kết hợp từ tự nhiên thường đi liền với nhau trong tiếng Anh."
+    },
+    {
+      "id": "tag-society",
+      "slug": "society",
+      "name": "Xã hội",
+      "category": "society",
+      "description": "Chủ đề Xã hội"
+    },
+    {
+      "id": "tag-science",
+      "slug": "science",
+      "name": "Khoa học",
+      "category": "science",
+      "description": "Chủ đề Khoa học"
+    },
+    {
+      "id": "tag-art",
+      "slug": "art",
+      "name": "Nghệ thuật",
+      "category": "art",
+      "description": "Chủ đề Nghệ thuật"
+    },
+    {
+      "id": "tag-music",
+      "slug": "music",
+      "name": "Âm nhạc",
+      "category": "entertainment",
+      "description": "Chủ đề Âm nhạc"
+    },
+    {
+      "id": "tag-geography",
+      "slug": "geography",
+      "name": "Địa lý",
+      "category": "geography",
+      "description": "Chủ đề Địa lý"
+    },
+    {
+      "id": "tag-nature",
+      "slug": "nature",
+      "name": "Tự nhiên",
+      "category": "nature",
+      "description": "Chủ đề Tự nhiên"
+    },
+    {
+      "id": "tag-law",
+      "slug": "law",
+      "name": "Pháp luật",
+      "category": "law",
+      "description": "Chủ đề Pháp luật"
+    },
+    {
+      "id": "tag-politics",
+      "slug": "politics",
+      "name": "Chính trị",
+      "category": "politics",
+      "description": "Chủ đề Chính trị"
+    },
+    {
+      "id": "tag-science-tech",
+      "slug": "science-tech",
+      "name": "Khoa học & Công nghệ",
+      "category": "technology",
+      "description": "Chủ đề Khoa học & Công nghệ"
+    },
+    {
+      "id": "tag-work",
+      "slug": "work",
+      "name": "Công việc & Nghề nghiệp",
+      "category": "jobs",
+      "description": "Chủ đề Công việc & Nghề nghiệp"
+    },
+    {
+      "id": "tag-crime",
+      "slug": "crime",
+      "name": "Tội phạm & Pháp lý",
+      "category": "law",
+      "description": "Chủ đề Tội phạm & Pháp lý"
+    },
+    {
+      "id": "tag-health",
+      "slug": "health",
+      "name": "Sức khỏe",
+      "category": "health",
+      "description": "Chủ đề Sức khỏe"
+    },
+    {
+      "id": "tag-news",
+      "slug": "news",
+      "name": "Tin tức & Thời sự",
+      "category": "society",
+      "description": "Chủ đề Tin tức & Thời sự"
+    },
+    {
+      "id": "tag-plants-nature",
+      "slug": "plants-nature",
+      "name": "Thực vật & Thiên nhiên",
+      "category": "nature",
+      "description": "Chủ đề Thực vật & Thiên nhiên"
+    },
+    {
+      "id": "tag-history",
+      "slug": "history",
+      "name": "Lịch sử",
+      "category": "history",
+      "description": "Chủ đề Lịch sử"
+    },
+    {
+      "id": "tag-house-home",
+      "slug": "house-home",
+      "name": "Nhà cửa & Đời sống",
+      "category": "home",
+      "description": "Chủ đề Nhà cửa & Đời sống"
+    },
+    {
+      "id": "tag-military",
+      "slug": "military",
+      "name": "Quân sự",
+      "category": "military",
+      "description": "Chủ đề Quân sự"
+    },
+    {
+      "id": "tag-clothes",
+      "slug": "clothes",
+      "name": "Trang phục",
+      "category": "clothing",
+      "description": "Chủ đề Trang phục"
+    },
+    {
+      "id": "tag-economics",
+      "slug": "economics",
+      "name": "Kinh tế",
+      "category": "business",
+      "description": "Chủ đề Kinh tế"
+    },
+    {
+      "id": "tag-culture",
+      "slug": "culture",
+      "name": "Văn hóa",
+      "category": "culture",
+      "description": "Chủ đề Văn hóa"
+    },
+    {
+      "id": "tag-communication",
+      "slug": "communication",
+      "name": "Giao tiếp",
+      "category": "communication",
+      "description": "Chủ đề Giao tiếp"
+    },
+    {
+      "id": "tag-media",
+      "slug": "media",
+      "name": "Truyền thông",
+      "category": "media",
+      "description": "Chủ đề Truyền thông"
+    },
+    {
+      "id": "tag-agriculture",
+      "slug": "agriculture",
+      "name": "Nông nghiệp",
+      "category": "nature",
+      "description": "Chủ đề Nông nghiệp"
+    },
+    {
+      "id": "tag-religion",
+      "slug": "religion",
+      "name": "Tôn giáo",
+      "category": "culture",
+      "description": "Chủ đề Tôn giáo"
     }
   ]
 }
