@@ -244,6 +244,7 @@ class _PhrasesListScreenState extends State<PhrasesListScreen> {
     ),
   ),
   floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab-phrases-list',
         onPressed: () {
           Navigator.push(
             context,

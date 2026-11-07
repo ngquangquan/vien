@@ -271,6 +271,7 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
     ),
   ),
   floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab-vocab-list',
         onPressed: () {
           Navigator.push(
             context,
