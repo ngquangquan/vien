@@ -23,14 +23,20 @@ class _DueVocabulary {
     required this.meaning,
   });
 
-  String buildNotificationBody() {
+  String buildNotificationTitle() {
     final pronunciation = ipa?.trim();
-    if (pronunciation == null || pronunciation.isEmpty) return meaning;
+    if (pronunciation == null || pronunciation.isEmpty) {
+      return spelling;
+    }
     final displayIpa =
         pronunciation.startsWith('/') && pronunciation.endsWith('/')
         ? pronunciation
         : '/$pronunciation/';
-    return '$displayIpa\n$meaning';
+    return '$spelling  $displayIpa';
+  }
+
+  String buildNotificationBody() {
+    return meaning.trim();
   }
 }
 
@@ -158,7 +164,7 @@ class NotificationService {
       final vocabulary = await _getRandomDueVocabulary();
       final notificationTitle = vocabulary == null
           ? title
-          : 'Cần ôn: ${vocabulary.spelling}';
+          : vocabulary.buildNotificationTitle();
       final notificationBody = vocabulary == null
           ? body
           : vocabulary.buildNotificationBody();
@@ -179,52 +185,123 @@ class NotificationService {
     }
   }
 
-  Future<_DueVocabulary?> _getRandomDueVocabulary() async {
+  Future<List<_DueVocabulary>> _getDueVocabularies({int limit = 50}) async {
     final database = db;
-    if (database == null) return null;
+    if (database == null) return const [];
 
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final progressRows =
-        await (database.select(database.learningProgress)..where(
-              (p) => p.dueAtMs.isNull() | p.dueAtMs.isSmallerOrEqualValue(now),
-            ))
-            .get();
-    final vocabularies = <_DueVocabulary>[];
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
 
-    for (final progress in progressRows) {
-      final sense = await (database.select(
-        database.senses,
-      )..where((s) => s.id.equals(progress.studyItemId))).getSingleOrNull();
-      if (sense == null || sense.isActive != 1) continue;
+      // 1. First priority: items due in learning_progress
+      final lpQuery =
+          database.select(database.learningProgress).join([
+              innerJoin(
+                database.senses,
+                database.senses.id.equalsExp(
+                  database.learningProgress.studyItemId,
+                ),
+              ),
+              innerJoin(
+                database.headwords,
+                database.headwords.id.equalsExp(database.senses.headwordId),
+              ),
+            ])
+            ..where(
+              (database.learningProgress.dueAtMs.isNull() |
+                      database.learningProgress.dueAtMs.isSmallerOrEqualValue(
+                        now,
+                      )) &
+                  database.senses.isActive.equals(1) &
+                  database.headwords.isArchived.equals(0),
+            )
+            ..limit(limit);
 
-      final headword = await (database.select(
-        database.headwords,
-      )..where((h) => h.id.equals(sense.headwordId))).getSingleOrNull();
-      if (headword == null || headword.isArchived != 0) continue;
+      final rows = await lpQuery.get();
+      final candidates =
+          <({String headwordId, String spelling, String meaning})>[];
 
-      final pronunciations = await (database.select(
-        database.pronunciations,
-      )..where((p) => p.headwordId.equals(headword.id))).get();
-      pronunciations.sort((a, b) {
-        if (a.accent.toLowerCase() == 'uk') return -1;
-        if (b.accent.toLowerCase() == 'uk') return 1;
-        return 0;
-      });
-
-      vocabularies.add(
-        _DueVocabulary(
+      for (final row in rows) {
+        final sense = row.readTable(database.senses);
+        final headword = row.readTable(database.headwords);
+        final meaning = (sense.meaningVi?.trim().isNotEmpty == true)
+            ? sense.meaningVi!.trim()
+            : sense.definitionEn.trim();
+        candidates.add((
           headwordId: headword.id,
           spelling: headword.spelling,
-          ipa: pronunciations.isEmpty ? null : pronunciations.first.ipa,
-          meaning: sense.meaningVi?.trim().isNotEmpty == true
-              ? sense.meaningVi!.trim()
-              : sense.definitionEn.trim(),
-        ),
-      );
-    }
+          meaning: meaning,
+        ));
+      }
 
-    if (vocabularies.isEmpty) return null;
-    return vocabularies[Random().nextInt(vocabularies.length)];
+      // 2. Fallback: if no items are due yet in learning_progress, pick active words
+      if (candidates.isEmpty) {
+        final fallbackQuery =
+            database.select(database.senses).join([
+                innerJoin(
+                  database.headwords,
+                  database.headwords.id.equalsExp(database.senses.headwordId),
+                ),
+              ])
+              ..where(
+                database.senses.isActive.equals(1) &
+                    database.headwords.isArchived.equals(0),
+              )
+              ..limit(limit);
+
+        final fallbackRows = await fallbackQuery.get();
+        for (final row in fallbackRows) {
+          final sense = row.readTable(database.senses);
+          final headword = row.readTable(database.headwords);
+          final meaning = (sense.meaningVi?.trim().isNotEmpty == true)
+              ? sense.meaningVi!.trim()
+              : sense.definitionEn.trim();
+          candidates.add((
+            headwordId: headword.id,
+            spelling: headword.spelling,
+            meaning: meaning,
+          ));
+        }
+      }
+
+      if (candidates.isEmpty) return const [];
+
+      // Bulk fetch pronunciations for candidates
+      final headwordIds = candidates.map((c) => c.headwordId).toSet().toList();
+      final pronRows = await (database.select(
+        database.pronunciations,
+      )..where((p) => p.headwordId.isIn(headwordIds))).get();
+
+      final pronMap = <String, String?>{};
+      for (final p in pronRows) {
+        final hwId = p.headwordId;
+        if (hwId == null || p.ipa == null || p.ipa!.trim().isEmpty) continue;
+        final current = pronMap[hwId];
+        if (current == null) {
+          pronMap[hwId] = p.ipa;
+        } else if (p.accent.toLowerCase() == 'uk' ||
+            p.accent.toLowerCase() == 'gb') {
+          pronMap[hwId] = p.ipa;
+        }
+      }
+
+      return candidates.map((c) {
+        return _DueVocabulary(
+          headwordId: c.headwordId,
+          spelling: c.spelling,
+          ipa: pronMap[c.headwordId],
+          meaning: c.meaning,
+        );
+      }).toList();
+    } catch (e, st) {
+      debugPrint('NotificationService _getDueVocabularies failed: $e\n$st');
+      return const [];
+    }
+  }
+
+  Future<_DueVocabulary?> _getRandomDueVocabulary() async {
+    final list = await _getDueVocabularies(limit: 30);
+    if (list.isEmpty) return null;
+    return list[Random().nextInt(list.length)];
   }
 
   /// Schedules notifications based on a standard Cron expression or multiple upcoming slots
@@ -242,15 +319,31 @@ class NotificationService {
         return 0;
       }
 
-      // First cancel existing study reminders in slot range (100 to 199)
-      for (int i = 100; i < 200; i++) {
-        await _plugin.cancel(id: i);
+      // Cancel existing study reminders in slot range (100 to 199) in parallel
+      try {
+        final pending = await _plugin.pendingNotificationRequests();
+        final reminderIds = pending
+            .where((p) => p.id >= 100 && p.id < 200)
+            .map((p) => p.id)
+            .toSet();
+        if (reminderIds.isNotEmpty) {
+          await Future.wait(reminderIds.map((id) => _plugin.cancel(id: id)));
+        }
+      } catch (e) {
+        await Future.wait([
+          for (int i = 100; i < 200; i++) _plugin.cancel(id: i),
+        ]);
       }
 
       final upcoming = parser.getNextOccurrences(
         from: DateTime.now(),
         count: occurrencesToSchedule,
       );
+
+      // Pre-fetch vocabularies once in a single efficient query
+      final dueVocabs = (await _getDueVocabularies(
+        limit: occurrencesToSchedule * 2,
+      ))..shuffle();
 
       int scheduledCount = 0;
       for (int i = 0; i < upcoming.length; i++) {
@@ -264,10 +357,12 @@ class NotificationService {
           targetDt.minute,
         );
         final notifId = 100 + i;
-        final vocabulary = await _getRandomDueVocabulary();
+        final vocabulary = dueVocabs.isNotEmpty
+            ? dueVocabs[i % dueVocabs.length]
+            : null;
         final notificationTitle = vocabulary == null
             ? title
-            : 'Cần ôn: ${vocabulary.spelling}';
+            : vocabulary.buildNotificationTitle();
         final notificationBody = vocabulary == null
             ? body
             : vocabulary.buildNotificationBody();
