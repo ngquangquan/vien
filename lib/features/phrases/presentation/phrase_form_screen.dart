@@ -154,7 +154,6 @@ class _PhraseFormScreenState extends State<PhraseFormScreen> {
                     ? null
                     : e.vietnameseCtrl.text.trim(),
                 note: null,
-                audioAssetKey: null,
                 sortOrder: 1,
                 sourceId: null,
               ),
@@ -488,4 +487,3 @@ class _PhraseFormScreenState extends State<PhraseFormScreen> {
     );
   }
 }
-

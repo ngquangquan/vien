@@ -12,13 +12,11 @@ void main() async {
   await initializeDateFormatting('vi', null);
 
   SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-    ),
+    const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
   );
 
   final db = AppDatabase();
-  final notifService = NotificationService();
+  final notifService = NotificationService(db: db);
 
   runApp(EnglishLearningApp(db: db, notifService: notifService));
 }

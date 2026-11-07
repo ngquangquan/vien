@@ -35,8 +35,6 @@ SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 OXFORD_JSON = Path("D:/oxford-5000-vocabulary-audio-definition-main/data/oxford_5000.json")
 OUTPUT_DIR = PROJECT_ROOT / "assets" / "seed" / "headwords"
-AUDIO_UK_DIR = PROJECT_ROOT / "assets" / "audio" / "uk"
-AUDIO_US_DIR = PROJECT_ROOT / "assets" / "audio" / "us"
 MANIFEST_PATH = PROJECT_ROOT / "assets" / "seed" / "manifest.json"
 
 # ---------------------------------------------------------------------------
@@ -74,18 +72,6 @@ def normalize_pos(raw: str) -> str:
 def normalize_word(word: str) -> str:
     """Lowercase, bỏ dấu câu đặc biệt để làm ID."""
     return re.sub(r"[^a-z0-9\-]", "", word.lower().replace(" ", "-").replace("'", "").replace(".", ""))
-
-
-def audio_asset_key(filename: str, accent: str) -> str | None:
-    """Trả về asset key tương đối nếu file tồn tại, ngược lại None."""
-    if not filename:
-        return None
-    base = os.path.basename(filename)
-    if accent == "uk":
-        path = AUDIO_UK_DIR / base
-    else:
-        path = AUDIO_US_DIR / base
-    return f"assets/audio/{accent}/{base}" if path.exists() else None
 
 
 def min_cefr(levels: list[str]) -> str:
@@ -127,22 +113,17 @@ def build_headword(word: str, senses_raw: list[dict]) -> dict:
     ipa_us = first.get("phon_n_am") or None
 
     pronunciations = []
-    uk_key = audio_asset_key(first.get("uk", ""), "uk")
-    us_key = audio_asset_key(first.get("us", ""), "us")
-
-    if ipa_uk or uk_key:
+    if ipa_uk:
         pronunciations.append({
             "id": f"pron-{norm}-uk",
             "accent": "uk",
             "ipa": ipa_uk,
-            "audioAssetKey": uk_key,
         })
-    if ipa_us or us_key:
+    if ipa_us:
         pronunciations.append({
             "id": f"pron-{norm}-us",
             "accent": "us",
             "ipa": ipa_us,
-            "audioAssetKey": us_key,
         })
 
     # Build senses
@@ -241,7 +222,6 @@ def main():
 
     # 3. Build headwords, phân nhóm theo CEFR của headword
     cefr_buckets: dict[str, list[dict]] = {c: [] for c in CEFR_ORDER}
-    missing_audio = 0
 
     for word, senses_raw in sorted(grouped.items()):
         hw = build_headword(word, senses_raw)
@@ -250,10 +230,6 @@ def main():
             level = "c2"  # fallback
         cefr_buckets[level].append(hw)
 
-        # Check audio
-        for pron in hw["pronunciations"]:
-            if pron["audioAssetKey"] is None and pron.get("ipa"):
-                missing_audio += 1
 
     # 4. Save theo CEFR
     print(f"\n📦 Xuất seed files vào {OUTPUT_DIR}/")
@@ -269,8 +245,6 @@ def main():
 
     total = sum(len(v) for v in cefr_buckets.values())
     print(f"\n✅ Tổng: {total} headwords")
-    if missing_audio:
-        print(f"⚠️  {missing_audio} pronunciations thiếu audio file")
 
     # 5. Update manifest nếu được yêu cầu
     if args.update_manifest:

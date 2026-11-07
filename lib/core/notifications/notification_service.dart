@@ -3,14 +3,44 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'dart:math';
+
+import 'package:drift/drift.dart';
+
+import '../database/app_database.dart';
 import 'cron_parser.dart';
+
+class _DueVocabulary {
+  final String headwordId;
+  final String spelling;
+  final String? ipa;
+  final String meaning;
+
+  const _DueVocabulary({
+    required this.headwordId,
+    required this.spelling,
+    required this.ipa,
+    required this.meaning,
+  });
+
+  String buildNotificationBody() {
+    final pronunciation = ipa?.trim();
+    if (pronunciation == null || pronunciation.isEmpty) return meaning;
+    final displayIpa =
+        pronunciation.startsWith('/') && pronunciation.endsWith('/')
+        ? pronunciation
+        : '/$pronunciation/';
+    return '$displayIpa\n$meaning';
+  }
+}
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
   bool _isInitialized = false;
+  final AppDatabase? db;
 
-  NotificationService();
+  NotificationService({this.db});
 
   Future<void> initialize({
     void Function(String? payload)? onSelectNotification,
@@ -55,6 +85,12 @@ class NotificationService {
     }
   }
 
+  Future<String?> getLaunchPayload() async {
+    final launchDetails = await _plugin.getNotificationAppLaunchDetails();
+    if (launchDetails?.didNotificationLaunchApp != true) return null;
+    return launchDetails?.notificationResponse?.payload;
+  }
+
   Future<bool> requestPermission() async {
     try {
       final androidImpl = _plugin
@@ -89,6 +125,7 @@ class NotificationService {
     String channelId = 'study_reminder_channel',
     String channelName = 'Nhắc nhở học tập',
     String channelDescription = 'Thông báo lịch học từ vựng và ôn tập',
+    String? bigText,
   }) {
     final androidDetails = AndroidNotificationDetails(
       channelId,
@@ -96,6 +133,9 @@ class NotificationService {
       channelDescription: channelDescription,
       importance: Importance.high,
       priority: Priority.high,
+      styleInformation: bigText == null
+          ? null
+          : BigTextStyleInformation(bigText),
     );
 
     return NotificationDetails(
@@ -115,16 +155,76 @@ class NotificationService {
     String body = 'Chúc bạn học từ vựng hiệu quả hôm nay! Hệ thống nhắc nhở hoạt động bình thường.',
   }) async {
     try {
+      final vocabulary = await _getRandomDueVocabulary();
+      final notificationTitle = vocabulary == null
+          ? title
+          : 'Cần ôn: ${vocabulary.spelling}';
+      final notificationBody = vocabulary == null
+          ? body
+          : vocabulary.buildNotificationBody();
+      final payload = vocabulary == null
+          ? '/review'
+          : 'vocabulary:${vocabulary.headwordId}';
       await _plugin.show(
         id: 9999,
-        title: title,
-        body: body,
-        notificationDetails: _buildNotificationDetails(),
-        payload: '/review',
+        title: notificationTitle,
+        body: notificationBody,
+        notificationDetails: _buildNotificationDetails(
+          bigText: notificationBody,
+        ),
+        payload: payload,
       );
     } catch (e) {
       debugPrint('NotificationService sendTestNotification failed: $e');
     }
+  }
+
+  Future<_DueVocabulary?> _getRandomDueVocabulary() async {
+    final database = db;
+    if (database == null) return null;
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final progressRows =
+        await (database.select(database.learningProgress)..where(
+              (p) => p.dueAtMs.isNull() | p.dueAtMs.isSmallerOrEqualValue(now),
+            ))
+            .get();
+    final vocabularies = <_DueVocabulary>[];
+
+    for (final progress in progressRows) {
+      final sense = await (database.select(
+        database.senses,
+      )..where((s) => s.id.equals(progress.studyItemId))).getSingleOrNull();
+      if (sense == null || sense.isActive != 1) continue;
+
+      final headword = await (database.select(
+        database.headwords,
+      )..where((h) => h.id.equals(sense.headwordId))).getSingleOrNull();
+      if (headword == null || headword.isArchived != 0) continue;
+
+      final pronunciations = await (database.select(
+        database.pronunciations,
+      )..where((p) => p.headwordId.equals(headword.id))).get();
+      pronunciations.sort((a, b) {
+        if (a.accent.toLowerCase() == 'uk') return -1;
+        if (b.accent.toLowerCase() == 'uk') return 1;
+        return 0;
+      });
+
+      vocabularies.add(
+        _DueVocabulary(
+          headwordId: headword.id,
+          spelling: headword.spelling,
+          ipa: pronunciations.isEmpty ? null : pronunciations.first.ipa,
+          meaning: sense.meaningVi?.trim().isNotEmpty == true
+              ? sense.meaningVi!.trim()
+              : sense.definitionEn.trim(),
+        ),
+      );
+    }
+
+    if (vocabularies.isEmpty) return null;
+    return vocabularies[Random().nextInt(vocabularies.length)];
   }
 
   /// Schedules notifications based on a standard Cron expression or multiple upcoming slots
@@ -164,16 +264,28 @@ class NotificationService {
           targetDt.minute,
         );
         final notifId = 100 + i;
+        final vocabulary = await _getRandomDueVocabulary();
+        final notificationTitle = vocabulary == null
+            ? title
+            : 'Cần ôn: ${vocabulary.spelling}';
+        final notificationBody = vocabulary == null
+            ? body
+            : vocabulary.buildNotificationBody();
+        final notificationPayload = vocabulary == null
+            ? payload
+            : 'vocabulary:${vocabulary.headwordId}';
 
         try {
           await _plugin.zonedSchedule(
             id: notifId,
-            title: title,
-            body: body,
+            title: notificationTitle,
+            body: notificationBody,
             scheduledDate: tzTarget,
-            notificationDetails: _buildNotificationDetails(),
+            notificationDetails: _buildNotificationDetails(
+              bigText: notificationBody,
+            ),
             androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            payload: payload,
+            payload: notificationPayload,
           );
           scheduledCount++;
         } catch (e) {
@@ -181,7 +293,9 @@ class NotificationService {
         }
       }
 
-      debugPrint('Successfully scheduled $scheduledCount notifications for cron $cronExpression');
+      debugPrint(
+        'Successfully scheduled $scheduledCount notifications for cron $cronExpression',
+      );
       return scheduledCount;
     } catch (e, st) {
       debugPrint('NotificationService scheduleFromCron failed: $e\n$st');

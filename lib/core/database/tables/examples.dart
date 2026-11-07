@@ -11,7 +11,6 @@ class Examples extends Table {
   TextColumn get englishText => text()();
   TextColumn get vietnameseText => text().nullable()();
   TextColumn get note => text().nullable()();
-  TextColumn get audioAssetKey => text().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   TextColumn get sourceId => text().nullable().references(
     ContentSources,

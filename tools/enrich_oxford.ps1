@@ -11,7 +11,6 @@
 #   - vietnameseText    (dich cac example con null)
 #   - notes             (ghi chu cap headword: tu de nham, collocation, etymology)
 #   - example.note      (ghi chu cau truc / idiom rut ra tu vi du)
-#   - strip audioAssetKey (xoa truong nay neu khong can)
 #
 # Cach dung:
 #   $env:GEMINI_API_KEY = "AIza..."
@@ -643,21 +642,7 @@ Input: $inputJson
 }
 
 # ---------------------------------------------------------------------------
-# PASS 7: STRIP AUDIO - xoa truong audioAssetKey khoi pronunciations
 # ---------------------------------------------------------------------------
-function Run-StripAudioPass($data) {
-    $count = 0
-    foreach ($hw in $data.headwords) {
-        foreach ($pron in $hw.pronunciations) {
-            if ($pron.PSObject.Properties.Name -contains "audioAssetKey") {
-                $pron.PSObject.Properties.Remove("audioAssetKey")
-                $count++
-            }
-        }
-    }
-    Write-Host "  [Strip Audio] Removed audioAssetKey from $count pronunciations" -ForegroundColor Green
-}
-
 # ---------------------------------------------------------------------------
 # Main loop
 # ---------------------------------------------------------------------------
@@ -685,7 +670,6 @@ foreach ($file in $files) {
         Run-NotesPass $data $file
     }
     if ($Mode -eq "all" -or $Mode -eq "strip-audio") {
-        Run-StripAudioPass $data
     }
 
     if (-not $DryRun) {

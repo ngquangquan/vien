@@ -9,8 +9,6 @@ $UTF8NoBom = [System.Text.UTF8Encoding]::new($false)
 $OXFORD_JSON  = "D:\oxford-5000-vocabulary-audio-definition-main\data\oxford_5000.json"
 $PROJECT_ROOT = "D:\Projects\other\vien"
 $OUTPUT_DIR   = "$PROJECT_ROOT\assets\seed\headwords"
-$AUDIO_UK_DIR = "$PROJECT_ROOT\assets\audio\uk"
-$AUDIO_US_DIR = "$PROJECT_ROOT\assets\audio\us"
 $MANIFEST     = "$PROJECT_ROOT\assets\seed\manifest.json"
 
 $CEFR_ORDER = @("a1","a2","b1","b2","c1","c2")
@@ -44,15 +42,6 @@ function Min-Cefr([string[]]$levels) {
     return $arr[0].ToUpper()
 }
 
-function Audio-AssetKey([string]$filename, [string]$accent) {
-    if (-not $filename) { return $null }
-    $base = [System.IO.Path]::GetFileName($filename)
-    if ($accent -eq "uk") { $full = "$AUDIO_UK_DIR\$base" }
-    else                  { $full = "$AUDIO_US_DIR\$base" }
-    if (Test-Path $full)  { return "assets/audio/$accent/$base" }
-    return $null
-}
-
 # ---------------------------------------------------------------------------
 Write-Host "[1/5] Doc $OXFORD_JSON ..."
 $rawText = [System.IO.File]::ReadAllText($OXFORD_JSON, [System.Text.UTF8Encoding]::new($false))
@@ -80,8 +69,6 @@ Write-Host "[3/5] Build headword objects..."
 
 $cefrBuckets = @{}
 foreach ($c in $CEFR_ORDER) { $cefrBuckets[$c] = [System.Collections.Generic.List[object]]::new() }
-$missingAudio = 0
-
 foreach ($word in ($grouped.Keys | Sort-Object)) {
     $sensesRaw = $grouped[$word]
     $norm      = Normalize-Word $word
@@ -90,30 +77,21 @@ foreach ($word in ($grouped.Keys | Sort-Object)) {
     $first  = $sensesRaw[0]
     $ipaUk  = if ($first.phon_br)   { [string]$first.phon_br }   else { $null }
     $ipaUs  = if ($first.phon_n_am) { [string]$first.phon_n_am } else { $null }
-    $ukFile = if ($first.uk)        { [string]$first.uk }         else { "" }
-    $usFile = if ($first.us)        { [string]$first.us }         else { "" }
-    $ukKey  = Audio-AssetKey $ukFile "uk"
-    $usKey  = Audio-AssetKey $usFile "us"
-
     $pronunciations = [System.Collections.Generic.List[object]]::new()
-    if ($ipaUk -or $ukKey) {
+    if ($ipaUk) {
         $pronunciations.Add([pscustomobject]@{
             id           = "pron-$norm-uk"
             accent       = "uk"
             ipa          = $ipaUk
-            audioAssetKey= $ukKey
         })
     }
-    if ($ipaUs -or $usKey) {
+    if ($ipaUs) {
         $pronunciations.Add([pscustomobject]@{
             id           = "pron-$norm-us"
             accent       = "us"
             ipa          = $ipaUs
-            audioAssetKey= $usKey
         })
     }
-
-    if (-not $ukKey) { $missingAudio++ }
 
     $typeCounter = @{}
     $senses      = [System.Collections.Generic.List[object]]::new()
@@ -217,10 +195,6 @@ foreach ($level in $CEFR_ORDER) {
 
 $total = ($cefrBuckets.Values | ForEach-Object { $_.Count } | Measure-Object -Sum).Sum
 Write-Host "      Tong: $total headwords"
-if ($missingAudio -gt 0) {
-    Write-Host "      WARN: $missingAudio headwords thieu audio UK"
-}
-
 # ---------------------------------------------------------------------------
 Write-Host "[5/5] Cap nhat manifest.json..."
 
