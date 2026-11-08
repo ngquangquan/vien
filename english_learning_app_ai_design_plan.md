@@ -99,7 +99,6 @@ The names below are proposed logical names. Match them to Drift's Dart naming co
 - `sense_id TEXT NULL REFERENCES study_items(id) ON DELETE CASCADE`.
 - `accent TEXT NOT NULL` — controlled values such as `uk`, `us`, `au`, `other`.
 - `ipa TEXT NULL`.
-- `audio_asset_key TEXT NULL` — key/path to a local asset, not a URL.
 - `source_note TEXT NULL`, `licence_note TEXT NULL`.
 - CHECK constraint: exactly one of `headword_id` or `sense_id` is non-null. Use `sense_id` for pronunciations that differ by sense.
 
@@ -145,7 +144,7 @@ The names below are proposed logical names. Match them to Drift's Dart naming co
 #### `examples`
 - `id TEXT PRIMARY KEY`, `study_item_id TEXT NOT NULL REFERENCES study_items(id) ON DELETE CASCADE`.
 - `english_text TEXT NOT NULL`, `vietnamese_text TEXT NULL`, `note TEXT NULL`.
-- `audio_asset_key TEXT NULL`, `sort_order INTEGER NOT NULL DEFAULT 0`.
+- `sort_order INTEGER NOT NULL DEFAULT 0`.
 - `source_id TEXT NULL REFERENCES content_sources(id) ON DELETE SET NULL`.
 
 #### `tags` and `item_tags`

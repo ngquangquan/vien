@@ -217,6 +217,7 @@ class _TagsScreenState extends State<TagsScreen> {
     ),
   ),
   floatingActionButton: FloatingActionButton(
+        heroTag: 'fab-tags-list',
         onPressed: _showAddTagDialog,
         child: const Icon(Icons.add),
       ),

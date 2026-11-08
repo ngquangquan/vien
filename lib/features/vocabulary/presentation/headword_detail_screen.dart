@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../shared/widgets/cefr_badge.dart';
+import '../../../shared/widgets/speak_button.dart';
+import '../../../core/tts/tts_service.dart';
 import '../data/vocabulary_repository.dart';
 import '../domain/models/vocabulary_models.dart';
 import 'headword_form_screen.dart';
@@ -192,13 +194,25 @@ class _HeadwordDetailScreenState extends State<HeadwordDetailScreen> {
                                     ),
                                   ),
                                   CefrBadge(level: hw.cefrLevel, fontSize: 14),
+                                  const SizedBox(width: 8),
+                                  SpeakButton(
+                                    text: hw.spelling,
+                                    tooltip: 'Nghe phát âm',
+                                    iconSize: 26,
+                                  ),
                                 ],
                               ),
                               if (detail.pronunciations.isNotEmpty) ...[
                                 const SizedBox(height: 8),
                                 Wrap(
                                   spacing: 12,
+                                  runSpacing: 4,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
                                   children: detail.pronunciations.map((p) {
+                                    final isUk = p.accent.toLowerCase() == 'uk' ||
+                                        p.accent.toLowerCase() == 'gb';
+                                    final accent = isUk ? TtsAccent.uk : TtsAccent.us;
+
                                     return Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
@@ -217,6 +231,13 @@ class _HeadwordDetailScreenState extends State<HeadwordDetailScreen> {
                                             fontSize: 16,
                                             fontStyle: FontStyle.italic,
                                           ),
+                                        ),
+                                        const SizedBox(width: 2),
+                                        SpeakButton(
+                                          text: hw.spelling,
+                                          accent: accent,
+                                          iconSize: 18,
+                                          padding: const EdgeInsets.all(2),
                                         ),
                                       ],
                                     );
@@ -242,7 +263,7 @@ class _HeadwordDetailScreenState extends State<HeadwordDetailScreen> {
                                         '${inf.form} (${inf.formType})',
                                         style: const TextStyle(fontSize: 12),
                                       ),
-                                      backgroundColor: const Color(0xFFF1F5F9),
+                                      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                                       padding: EdgeInsets.zero,
                                     );
                                   }).toList(),
@@ -310,13 +331,13 @@ class _HeadwordDetailScreenState extends State<HeadwordDetailScreen> {
                                         vertical: 3,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF0F172A),
+                                        color: Theme.of(context).colorScheme.inverseSurface,
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
                                         s.sense.partOfSpeech.toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onInverseSurface,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 11,
                                         ),
@@ -390,7 +411,7 @@ class _HeadwordDetailScreenState extends State<HeadwordDetailScreen> {
                                           t.name,
                                           style: const TextStyle(fontSize: 11),
                                         ),
-                                        backgroundColor: const Color(0xFFE2E8F0),
+                                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                                         padding: EdgeInsets.zero,
                                       );
                                     }).toList(),
@@ -412,12 +433,25 @@ class _HeadwordDetailScreenState extends State<HeadwordDetailScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            '• ${ex.englishText}',
-                                            style: const TextStyle(
-                                              fontStyle: FontStyle.italic,
-                                              fontSize: 14,
-                                            ),
+                                          Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  '• ${ex.englishText}',
+                                                  style: const TextStyle(
+                                                    fontStyle: FontStyle.italic,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
+                                              SpeakButton(
+                                                text: ex.englishText,
+                                                iconSize: 18,
+                                                tooltip: 'Nghe câu ví dụ',
+                                                padding: EdgeInsets.zero,
+                                              ),
+                                            ],
                                           ),
                                           if (ex.vietnameseText != null)
                                             Padding(

@@ -112,7 +112,6 @@ void main() {
                 englishText: 'He writes clean code every day.',
                 vietnameseText: 'Anh ấy viết mã nguồn sạch mỗi ngày.',
                 note: null,
-                audioAssetKey: null,
                 sortOrder: 1,
                 sourceId: null,
               ),

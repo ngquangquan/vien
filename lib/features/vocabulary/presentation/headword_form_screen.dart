@@ -173,7 +173,6 @@ class _HeadwordFormScreenState extends State<HeadwordFormScreen> {
                     ? null
                     : e.vietnameseCtrl.text.trim(),
                 note: null,
-                audioAssetKey: null,
                 sortOrder: 1,
                 sourceId: null,
               ),
@@ -559,4 +558,3 @@ class _HeadwordFormScreenState extends State<HeadwordFormScreen> {
     );
   }
 }
-

@@ -32,17 +32,8 @@ class VocabularyRepository {
         final rawTerm = filter.query!.trim().toLowerCase();
         final searchPattern = '%$rawTerm%';
 
-        // Subquery: matching senses definition_en or meaning_vi
-        final matchingSenseHwIds = db.selectOnly(db.senses)
-          ..addColumns([db.senses.headwordId])
-          ..where(
-            db.senses.definitionEn.lower().like(searchPattern) |
-                db.senses.meaningVi.lower().like(searchPattern),
-          );
-
         predicates.add(
-          tbl.normalizedSpelling.like(searchPattern) |
-              tbl.id.isInQuery(matchingSenseHwIds),
+          tbl.normalizedSpelling.like(searchPattern)
         );
       }
 
@@ -214,7 +205,6 @@ class VocabularyRepository {
                 headwordId: Value(hwId),
                 accent: p.accent,
                 ipa: Value(p.ipa),
-                audioAssetKey: Value(p.audioAssetKey),
                 sourceNote: Value(p.sourceNote),
                 licenceNote: Value(p.licenceNote),
               ),

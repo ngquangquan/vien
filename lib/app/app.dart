@@ -10,6 +10,7 @@ import '../features/tags/data/tags_repository.dart';
 import '../features/review/data/review_repository.dart';
 import '../features/quiz/data/quiz_repository.dart';
 import '../features/settings/data/settings_repository.dart';
+import '../features/vocabulary/presentation/headword_detail_screen.dart';
 import 'main_scaffold.dart';
 import 'theme.dart';
 
@@ -28,6 +29,7 @@ class EnglishLearningApp extends StatefulWidget {
 }
 
 class _EnglishLearningAppState extends State<EnglishLearningApp> {
+  final navigatorKey = GlobalKey<NavigatorState>();
   late final VocabularyRepository vocabRepo;
   late final PhrasesRepository phrasesRepo;
   late final TagsRepository tagsRepo;
@@ -36,6 +38,8 @@ class _EnglishLearningAppState extends State<EnglishLearningApp> {
   late final SettingsRepository settingsRepo;
   late final BackupService backupService;
   bool _isReady = false;
+  double _seedProgress = 0;
+  String _seedMessage = 'Đang chuẩn bị dữ liệu...';
 
   @override
   void initState() {
@@ -52,30 +56,76 @@ class _EnglishLearningAppState extends State<EnglishLearningApp> {
   }
 
   Future<void> _initApp() async {
-    try {
-      // Perform initial seed if first launch
-      final seeder = SeedService(widget.db);
-      await seeder.seedFromAssets();
-    } catch (e, st) {
-      debugPrint('Seed initialization error: $e\n$st');
-    }
+    final seeded = await _seedAssets();
+    if (!seeded) return;
 
     try {
       // Initialize notification service
-      await widget.notifService.initialize();
+      await widget.notifService.initialize(onSelectNotification: _openPayload);
     } catch (e, st) {
       debugPrint('Notification initialization error: $e\n$st');
     }
 
     if (mounted) {
       setState(() => _isReady = true);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _openLaunchNotification();
+      });
+    }
+  }
+
+  Future<bool> _seedAssets() async {
+    try {
+      final seeder = SeedService(widget.db);
+      await seeder.seedFromAssets(
+        onProgress: (progress, message) {
+          if (!mounted) return;
+          setState(() {
+            _seedProgress = progress;
+            _seedMessage = message;
+          });
+        },
+      );
+      return true;
+    } catch (e, st) {
+      debugPrint('Seed initialization error: $e\n$st');
+      if (mounted) {
+        setState(() {
+          _seedMessage = 'Không thể nạp dữ liệu. $e';
+        });
+      }
+      return false;
+    }
+  }
+
+  Future<void> _openPayload(String? payload) async {
+    if (payload == null || !payload.startsWith('vocabulary:')) return;
+    final headwordId = payload.substring('vocabulary:'.length);
+    final navigator = navigatorKey.currentState;
+    if (navigator == null || headwordId.isEmpty) return;
+
+    navigator.push(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            HeadwordDetailScreen(headwordId: headwordId, vocabRepo: vocabRepo),
+      ),
+    );
+  }
+
+  Future<void> _openLaunchNotification() async {
+    final payload = await widget.notifService.getLaunchPayload();
+    if (payload != null && mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _openPayload(payload);
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     if (!_isReady) {
-      return const MaterialApp(
+      final percent = (_seedProgress * 100).round();
+      return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
           body: SafeArea(
@@ -83,9 +133,22 @@ class _EnglishLearningAppState extends State<EnglishLearningApp> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Đang khởi tạo từ điển offline...'),
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Đang khởi tạo từ điển offline: $percent%',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: LinearProgressIndicator(value: _seedProgress),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(_seedMessage, textAlign: TextAlign.center),
+                  ),
                 ],
               ),
             ),
@@ -95,6 +158,7 @@ class _EnglishLearningAppState extends State<EnglishLearningApp> {
     }
 
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'English Learning',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,

@@ -31,12 +31,16 @@ class SeedService {
   // ---------------------------------------------------------------------------
 
   /// Main entry point for production. Reads manifest and seeds only changed files.
-  Future<void> seedFromAssets() async {
+  Future<void> seedFromAssets({
+    void Function(double progress, String message)? onProgress,
+  }) async {
     try {
       final manifestString = await rootBundle.loadString(_manifestPath);
       final manifest = json.decode(manifestString) as Map<String, dynamic>;
-      final files =
-          (manifest['files'] as List<dynamic>).cast<Map<String, dynamic>>();
+      final files = (manifest['files'] as List<dynamic>)
+          .cast<Map<String, dynamic>>();
+      final total = files.length;
+      var completed = 0;
 
       for (final entry in files) {
         final relativePath = entry['path'] as String;
@@ -44,16 +48,23 @@ class SeedService {
         final settingKey = '$_seedFileKeyPrefix$relativePath';
 
         final installed = await _installedVersion(settingKey);
-        if (installed >= targetVersion) continue;
-
-        await _processAssetFile(
-          'assets/seed/$relativePath',
-          settingKey,
-          targetVersion,
+        if (installed < targetVersion) {
+          onProgress?.call(completed / total, 'Đang nạp $relativePath');
+          await _processAssetFile(
+            'assets/seed/$relativePath',
+            settingKey,
+            targetVersion,
+          );
+        }
+        completed++;
+        onProgress?.call(
+          completed / total,
+          'Đã nạp $completed/$total nguồn dữ liệu',
         );
       }
     } catch (e) {
       debugPrint('SeedService: manifest error — $e');
+      rethrow;
     }
   }
 
@@ -109,7 +120,7 @@ class SeedService {
     try {
       final raw = await rootBundle.loadString(assetPath);
       final data = json.decode(raw) as Map<String, dynamic>;
-      await _runSeedTransaction(data);
+      await _runSeedTransaction(data, replaceExisting: true);
 
       final now = DateTime.now().millisecondsSinceEpoch;
       await db
@@ -123,13 +134,20 @@ class SeedService {
           );
     } catch (e) {
       debugPrint('SeedService: failed to process $assetPath — $e');
+      rethrow;
     }
   }
 
   /// Core seed logic. Processes whichever sections are present in [data].
   /// All inserts use [insertOnConflictUpdate] — safe to run multiple times.
-  Future<void> _runSeedTransaction(Map<String, dynamic> data) async {
+  Future<void> _runSeedTransaction(
+    Map<String, dynamic> data, {
+    bool replaceExisting = false,
+  }) async {
     await db.transaction(() async {
+      if (replaceExisting) {
+        await _clearSeedData(data);
+      }
       final now = DateTime.now().millisecondsSinceEpoch;
 
       // 1. Content sources
@@ -196,21 +214,27 @@ class SeedService {
                   headwordId: Value(hwId),
                   accent: pMap['accent'] as String,
                   ipa: Value(pMap['ipa'] as String?),
-                  audioAssetKey: Value(pMap['audioAssetKey'] as String?),
                 ),
               );
         }
 
         for (final inf in (hwMap['inflections'] as List<dynamic>? ?? [])) {
           final infMap = inf as Map<String, dynamic>;
+          final inflectionFormType = infMap['form'] as String?;
+          final inflectionForm = infMap['value'] as String?;
+          if (inflectionFormType == null ||
+              inflectionForm == null ||
+              inflectionForm.isEmpty) {
+            continue;
+          }
           await db
               .into(db.inflections)
               .insertOnConflictUpdate(
                 InflectionsCompanion.insert(
-                  id: infMap['id'] as String,
+                  id: 'inf-$hwId-$inflectionFormType-$inflectionForm',
                   headwordId: hwId,
-                  form: infMap['form'] as String,
-                  formType: infMap['formType'] as String,
+                  form: inflectionForm,
+                  formType: inflectionFormType,
                 ),
               );
         }
@@ -285,6 +309,35 @@ class SeedService {
         }
       }
     });
+  }
+
+  Future<void> _clearSeedData(Map<String, dynamic> data) async {
+    final headwordIds = (data['headwords'] as List<dynamic>? ?? [])
+        .map((item) => (item as Map<String, dynamic>)['id'] as String)
+        .toList();
+    if (headwordIds.isNotEmpty) {
+      await (db.delete(
+        db.headwords,
+      )..where((tbl) => tbl.id.isIn(headwordIds))).go();
+    }
+
+    final phraseIds = (data['phrases'] as List<dynamic>? ?? [])
+        .map((item) => (item as Map<String, dynamic>)['id'] as String)
+        .toList();
+    if (phraseIds.isNotEmpty) {
+      await (db.delete(
+        db.phrases,
+      )..where((tbl) => tbl.id.isIn(phraseIds))).go();
+    }
+
+    final questionIds = (data['questions'] as List<dynamic>? ?? [])
+        .map((item) => (item as Map<String, dynamic>)['id'] as String)
+        .toList();
+    if (questionIds.isNotEmpty) {
+      await (db.delete(
+        db.questions,
+      )..where((tbl) => tbl.id.isIn(questionIds))).go();
+    }
   }
 
   Future<void> _insertSense(

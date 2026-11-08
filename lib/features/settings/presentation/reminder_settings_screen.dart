@@ -42,46 +42,19 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
   final List<int> _intervalOptions = [15, 30, 45, 60, 90, 120, 180, 240];
 
   final List<Map<String, String>> _cronPresets = [
-    {
-      'name': 'Sáng & Tối (8h, 20h)',
-      'cron': '0 8,20 * * *',
-    },
-    {
-      'name': 'Sáng, Trưa & Tối (8h, 12h, 20h)',
-      'cron': '0 8,12,20 * * *',
-    },
-    {
-      'name': 'Mỗi 2 giờ (8h - 22h)',
-      'cron': '0 8-22/2 * * *',
-    },
-    {
-      'name': 'Mỗi 1 giờ (8h - 21h)',
-      'cron': '0 8-21 * * *',
-    },
-    {
-      'name': 'Mỗi 3 giờ (9h - 21h)',
-      'cron': '0 9-21/3 * * *',
-    },
+    {'name': 'Sáng & Tối (8h, 20h)', 'cron': '0 8,20 * * *'},
+    {'name': 'Sáng, Trưa & Tối (8h, 12h, 20h)', 'cron': '0 8,12,20 * * *'},
+    {'name': 'Mỗi 2 giờ (8h - 22h)', 'cron': '0 8-22/2 * * *'},
+    {'name': 'Mỗi 1 giờ (8h - 21h)', 'cron': '0 8-21 * * *'},
+    {'name': 'Mỗi 3 giờ (9h - 21h)', 'cron': '0 9-21/3 * * *'},
     {
       'name': 'Mỗi 30 phút giờ học (8h-20h, T2-T6)',
       'cron': '*/30 8-20 * * 1-5',
     },
-    {
-      'name': '9:00 sáng ngày đi làm (T2-T6)',
-      'cron': '0 9 * * 1-5',
-    },
-    {
-      'name': 'T2, T4, T6 lúc 20:00',
-      'cron': '0 20 * * 1,3,5',
-    },
-    {
-      'name': 'T3, T5, T7 lúc 19:30',
-      'cron': '30 19 * * 2,4,6',
-    },
-    {
-      'name': 'Cuối tuần 10:00 sáng',
-      'cron': '0 10 * * 6,7',
-    },
+    {'name': '9:00 sáng ngày đi làm (T2-T6)', 'cron': '0 9 * * 1-5'},
+    {'name': 'T2, T4, T6 lúc 20:00', 'cron': '0 20 * * 1,3,5'},
+    {'name': 'T3, T5, T7 lúc 19:30', 'cron': '30 19 * * 2,4,6'},
+    {'name': 'Cuối tuần 10:00 sáng', 'cron': '0 10 * * 6,7'},
   ];
 
   @override
@@ -216,7 +189,8 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
         setState(() {
           _fixedTimes.add(picked);
           _fixedTimes.sort(
-            (a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute),
+            (a, b) =>
+                (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute),
           );
           _updateCronStateFromCurrentMode();
         });
@@ -265,17 +239,33 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
   }
 
   Future<void> _sendTestNotification() async {
-    await widget.notifService.requestPermission();
+    final granted = await widget.notifService.requestPermission();
+    if (!granted) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Quyền thông báo đang bị tắt! Vui lòng vào Cài đặt thiết bị > Ứng dụng > Vien để bật Cho phép thông báo.',
+            ),
+            backgroundColor: AppTheme.redColor,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+      return;
+    }
+
     await widget.notifService.sendTestNotification(
       title: 'Kiểm tra thông báo học tập',
-      body:
-          'Hệ thống nhắc nhở của Vien đang hoạt động tốt. Hãy sẵn sàng ôn từ vựng hôm nay!',
+      body: 'Hệ thống nhắc nhở của Vien đang hoạt động tốt. Hãy sẵn sàng ôn từ vựng hôm nay!',
     );
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Đã gửi thông báo kiểm tra! Vui lòng kiểm tra thanh thông báo.'),
+          content: Text(
+            'Đã gửi thông báo kiểm tra! Vui lòng kiểm tra thanh thông báo.',
+          ),
           duration: Duration(seconds: 3),
         ),
       );
@@ -312,7 +302,18 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
       await widget.settingsRepo.savePreferences(updated);
 
       if (_enabled) {
-        await widget.notifService.requestPermission();
+        final granted = await widget.notifService.requestPermission();
+        if (!granted && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Cảnh báo: Quyền thông báo đang bị tắt trong Cài đặt hệ thống của máy!',
+              ),
+              backgroundColor: AppTheme.redColor,
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
         final scheduled = await widget.notifService.scheduleFromCron(
           cronExpression: finalCron,
           title: 'Đã đến giờ học từ vựng!',
@@ -360,9 +361,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        body: SafeArea(
-          child: Center(child: CircularProgressIndicator()),
-        ),
+        body: SafeArea(child: Center(child: CircularProgressIndicator())),
       );
     }
 
@@ -664,8 +663,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                                     if (err == null) {
                                       _vietnameseExplanation =
                                           CronParser.toVietnamese(cur);
-                                      final parser =
-                                          CronParser.tryParse(cur);
+                                      final parser = CronParser.tryParse(cur);
                                       _upcomingOccurrences = parser != null
                                           ? parser.getNextOccurrences(count: 5)
                                           : [];
@@ -724,9 +722,9 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
                                 children: [1, 2, 3, 4, 5, 6, 7].map((d) {
                                   final isSelected = _weekdays.contains(d);
                                   return FilterChip(
@@ -752,7 +750,10 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 const Icon(
                                   Icons.info_outline,
@@ -760,22 +761,28 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                                   size: 20,
                                 ),
                                 const SizedBox(width: 8),
-                                const Text(
-                                  'Tóm tắt lịch nhắc nhở',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.primaryColor,
+                                SizedBox(
+                                  width: 220,
+                                  child: Text(
+                                    'Tóm tắt lịch nhắc nhở',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.primaryColor,
+                                    ),
                                   ),
                                 ),
-                                const Spacer(),
                                 Container(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 220,
+                                  ),
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 8,
                                     vertical: 3,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.primaryColor
-                                        .withValues(alpha: 0.15),
+                                    color: AppTheme.primaryColor.withValues(
+                                      alpha: 0.15,
+                                    ),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
@@ -786,6 +793,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                                       fontWeight: FontWeight.bold,
                                       color: AppTheme.primaryColor,
                                     ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],

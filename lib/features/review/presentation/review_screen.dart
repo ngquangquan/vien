@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../shared/widgets/cefr_badge.dart';
+import '../../../shared/widgets/speak_button.dart';
 import '../data/review_repository.dart';
 
 class ReviewScreen extends StatefulWidget {
@@ -129,7 +130,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           preferredSize: const Size.fromHeight(4),
           child: LinearProgressIndicator(
             value: progressVal,
-            backgroundColor: Colors.grey.shade200,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             valueColor: const AlwaysStoppedAnimation<Color>(
               AppTheme.primaryColor,
             ),
@@ -166,13 +167,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF0F172A),
+                                color: Theme.of(context).colorScheme.inverseSurface,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 current.posOrType.toUpperCase(),
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onInverseSurface,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 11,
                                 ),
@@ -185,24 +186,49 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        Text(
-                          current.title,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                current.title,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            SpeakButton(
+                              text: current.title,
+                              iconSize: 28,
+                              tooltip: 'Nghe phát âm',
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 16),
                         if (current.exampleTexts.isNotEmpty) ...[
-                          Text(
-                            'Ví dụ: "${current.exampleTexts.first}"',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontStyle: FontStyle.italic,
-                              fontSize: 15,
-                              color: Colors.grey.shade700,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  'Ví dụ: "${current.exampleTexts.first}"',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    fontSize: 15,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                              SpeakButton(
+                                text: current.exampleTexts.first,
+                                iconSize: 18,
+                                tooltip: 'Nghe câu ví dụ',
+                              ),
+                            ],
                           ),
                         ],
                         const SizedBox(height: 24),
@@ -224,54 +250,59 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           ),
                         ] else ...[
                           const Divider(height: 32),
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Định nghĩa (Learner Definition):',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  current.definitionEn,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                if (current.meaningVi != null) ...[
-                                  const SizedBox(height: 12),
-                                  const Text(
-                                    'Nghĩa tiếng Việt:',
+                          Builder(builder: (context) {
+                            final cs = Theme.of(context).colorScheme;
+                            return Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: cs.outlineVariant),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Định nghĩa (Learner Definition):',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
-                                      color: Colors.grey,
+                                      color: cs.onSurfaceVariant,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    current.meaningVi!,
-                                    style: const TextStyle(
+                                    current.definitionEn,
+                                    style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
-                                      color: AppTheme.accentColor,
+                                      color: cs.onSurface,
                                     ),
                                   ),
+                                  if (current.meaningVi != null) ...[
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Nghĩa tiếng Việt:',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: cs.onSurfaceVariant,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      current.meaningVi!,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppTheme.accentColor,
+                                      ),
+                                    ),
+                                  ],
                                 ],
-                              ],
-                            ),
-                          ),
+                              ),
+                            );
+                          }),
                         ],
                       ],
                     ),

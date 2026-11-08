@@ -4,6 +4,7 @@ import '../../../app/theme.dart';
 import '../../../core/backup/backup_service.dart';
 import '../../../core/notifications/cron_parser.dart';
 import '../../../core/notifications/notification_service.dart';
+import '../../../core/tts/tts_service.dart';
 import '../../../core/utils/responsive.dart';
 import '../../tags/data/tags_repository.dart';
 import '../../tags/presentation/tags_screen.dart';
@@ -261,6 +262,85 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ],
                       ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // TTS Voice Settings
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(Icons.record_voice_over_outlined, color: AppTheme.primaryColor),
+                              SizedBox(width: 8),
+                              Text(
+                                'Giọng đọc & Phát âm (Offline TTS)',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Sử dụng công nghệ Text-to-Speech của thiết bị, phát âm chuẩn mọi từ và câu ví dụ mà không cần kết nối mạng.',
+                            style: TextStyle(color: Colors.grey, fontSize: 13),
+                          ),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              const Text('Tốc độ đọc:', style: TextStyle(fontWeight: FontWeight.w500)),
+                              const SizedBox(width: 8),
+                              Text('${(TtsService().speechRate * 100).toInt()}%', style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
+                            ],
+                          ),
+                          Slider(
+                            value: TtsService().speechRate,
+                            min: 0.2,
+                            max: 1.0,
+                            divisions: 8,
+                            label: '${(TtsService().speechRate * 100).toInt()}%',
+                            onChanged: (val) {
+                              setState(() {
+                                TtsService().setSpeechRate(val);
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: () {
+                                    TtsService().speak(
+                                      'Hello! Welcome to English vocabulary learning.',
+                                      accent: TtsAccent.us,
+                                    );
+                                  },
+                                  icon: const Icon(Icons.volume_up, size: 18),
+                                  label: const Text('Thử giọng US'),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: () {
+                                    TtsService().speak(
+                                      'Hello! Welcome to English vocabulary learning.',
+                                      accent: TtsAccent.uk,
+                                    );
+                                  },
+                                  icon: const Icon(Icons.volume_up, size: 18),
+                                  label: const Text('Thử giọng UK'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 

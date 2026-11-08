@@ -222,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             (_stats['review'] ?? 0) /
                             (_prefs.dailyGoal > 0 ? _prefs.dailyGoal : 10),
                         minHeight: 8,
-                        backgroundColor: const Color(0xFFE2E8F0),
+                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                         valueColor: const AlwaysStoppedAnimation<Color>(
                           AppTheme.accentColor,
                         ),

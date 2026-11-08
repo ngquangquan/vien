@@ -2991,17 +2991,6 @@ class $PronunciationsTable extends Pronunciations
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _audioAssetKeyMeta = const VerificationMeta(
-    'audioAssetKey',
-  );
-  @override
-  late final GeneratedColumn<String> audioAssetKey = GeneratedColumn<String>(
-    'audio_asset_key',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
   static const VerificationMeta _sourceNoteMeta = const VerificationMeta(
     'sourceNote',
   );
@@ -3031,7 +3020,6 @@ class $PronunciationsTable extends Pronunciations
     senseId,
     accent,
     ipa,
-    audioAssetKey,
     sourceNote,
     licenceNote,
   ];
@@ -3078,15 +3066,6 @@ class $PronunciationsTable extends Pronunciations
         ipa.isAcceptableOrUnknown(data['ipa']!, _ipaMeta),
       );
     }
-    if (data.containsKey('audio_asset_key')) {
-      context.handle(
-        _audioAssetKeyMeta,
-        audioAssetKey.isAcceptableOrUnknown(
-          data['audio_asset_key']!,
-          _audioAssetKeyMeta,
-        ),
-      );
-    }
     if (data.containsKey('source_note')) {
       context.handle(
         _sourceNoteMeta,
@@ -3131,10 +3110,6 @@ class $PronunciationsTable extends Pronunciations
         DriftSqlType.string,
         data['${effectivePrefix}ipa'],
       ),
-      audioAssetKey: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}audio_asset_key'],
-      ),
       sourceNote: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}source_note'],
@@ -3158,7 +3133,6 @@ class Pronunciation extends DataClass implements Insertable<Pronunciation> {
   final String? senseId;
   final String accent;
   final String? ipa;
-  final String? audioAssetKey;
   final String? sourceNote;
   final String? licenceNote;
   const Pronunciation({
@@ -3167,7 +3141,6 @@ class Pronunciation extends DataClass implements Insertable<Pronunciation> {
     this.senseId,
     required this.accent,
     this.ipa,
-    this.audioAssetKey,
     this.sourceNote,
     this.licenceNote,
   });
@@ -3184,9 +3157,6 @@ class Pronunciation extends DataClass implements Insertable<Pronunciation> {
     map['accent'] = Variable<String>(accent);
     if (!nullToAbsent || ipa != null) {
       map['ipa'] = Variable<String>(ipa);
-    }
-    if (!nullToAbsent || audioAssetKey != null) {
-      map['audio_asset_key'] = Variable<String>(audioAssetKey);
     }
     if (!nullToAbsent || sourceNote != null) {
       map['source_note'] = Variable<String>(sourceNote);
@@ -3208,9 +3178,6 @@ class Pronunciation extends DataClass implements Insertable<Pronunciation> {
           : Value(senseId),
       accent: Value(accent),
       ipa: ipa == null && nullToAbsent ? const Value.absent() : Value(ipa),
-      audioAssetKey: audioAssetKey == null && nullToAbsent
-          ? const Value.absent()
-          : Value(audioAssetKey),
       sourceNote: sourceNote == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceNote),
@@ -3231,7 +3198,6 @@ class Pronunciation extends DataClass implements Insertable<Pronunciation> {
       senseId: serializer.fromJson<String?>(json['senseId']),
       accent: serializer.fromJson<String>(json['accent']),
       ipa: serializer.fromJson<String?>(json['ipa']),
-      audioAssetKey: serializer.fromJson<String?>(json['audioAssetKey']),
       sourceNote: serializer.fromJson<String?>(json['sourceNote']),
       licenceNote: serializer.fromJson<String?>(json['licenceNote']),
     );
@@ -3245,7 +3211,6 @@ class Pronunciation extends DataClass implements Insertable<Pronunciation> {
       'senseId': serializer.toJson<String?>(senseId),
       'accent': serializer.toJson<String>(accent),
       'ipa': serializer.toJson<String?>(ipa),
-      'audioAssetKey': serializer.toJson<String?>(audioAssetKey),
       'sourceNote': serializer.toJson<String?>(sourceNote),
       'licenceNote': serializer.toJson<String?>(licenceNote),
     };
@@ -3257,7 +3222,6 @@ class Pronunciation extends DataClass implements Insertable<Pronunciation> {
     Value<String?> senseId = const Value.absent(),
     String? accent,
     Value<String?> ipa = const Value.absent(),
-    Value<String?> audioAssetKey = const Value.absent(),
     Value<String?> sourceNote = const Value.absent(),
     Value<String?> licenceNote = const Value.absent(),
   }) => Pronunciation(
@@ -3266,9 +3230,6 @@ class Pronunciation extends DataClass implements Insertable<Pronunciation> {
     senseId: senseId.present ? senseId.value : this.senseId,
     accent: accent ?? this.accent,
     ipa: ipa.present ? ipa.value : this.ipa,
-    audioAssetKey: audioAssetKey.present
-        ? audioAssetKey.value
-        : this.audioAssetKey,
     sourceNote: sourceNote.present ? sourceNote.value : this.sourceNote,
     licenceNote: licenceNote.present ? licenceNote.value : this.licenceNote,
   );
@@ -3281,9 +3242,6 @@ class Pronunciation extends DataClass implements Insertable<Pronunciation> {
       senseId: data.senseId.present ? data.senseId.value : this.senseId,
       accent: data.accent.present ? data.accent.value : this.accent,
       ipa: data.ipa.present ? data.ipa.value : this.ipa,
-      audioAssetKey: data.audioAssetKey.present
-          ? data.audioAssetKey.value
-          : this.audioAssetKey,
       sourceNote: data.sourceNote.present
           ? data.sourceNote.value
           : this.sourceNote,
@@ -3301,7 +3259,6 @@ class Pronunciation extends DataClass implements Insertable<Pronunciation> {
           ..write('senseId: $senseId, ')
           ..write('accent: $accent, ')
           ..write('ipa: $ipa, ')
-          ..write('audioAssetKey: $audioAssetKey, ')
           ..write('sourceNote: $sourceNote, ')
           ..write('licenceNote: $licenceNote')
           ..write(')'))
@@ -3315,7 +3272,6 @@ class Pronunciation extends DataClass implements Insertable<Pronunciation> {
     senseId,
     accent,
     ipa,
-    audioAssetKey,
     sourceNote,
     licenceNote,
   );
@@ -3328,7 +3284,6 @@ class Pronunciation extends DataClass implements Insertable<Pronunciation> {
           other.senseId == this.senseId &&
           other.accent == this.accent &&
           other.ipa == this.ipa &&
-          other.audioAssetKey == this.audioAssetKey &&
           other.sourceNote == this.sourceNote &&
           other.licenceNote == this.licenceNote);
 }
@@ -3339,7 +3294,6 @@ class PronunciationsCompanion extends UpdateCompanion<Pronunciation> {
   final Value<String?> senseId;
   final Value<String> accent;
   final Value<String?> ipa;
-  final Value<String?> audioAssetKey;
   final Value<String?> sourceNote;
   final Value<String?> licenceNote;
   final Value<int> rowid;
@@ -3349,7 +3303,6 @@ class PronunciationsCompanion extends UpdateCompanion<Pronunciation> {
     this.senseId = const Value.absent(),
     this.accent = const Value.absent(),
     this.ipa = const Value.absent(),
-    this.audioAssetKey = const Value.absent(),
     this.sourceNote = const Value.absent(),
     this.licenceNote = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -3360,7 +3313,6 @@ class PronunciationsCompanion extends UpdateCompanion<Pronunciation> {
     this.senseId = const Value.absent(),
     required String accent,
     this.ipa = const Value.absent(),
-    this.audioAssetKey = const Value.absent(),
     this.sourceNote = const Value.absent(),
     this.licenceNote = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -3372,7 +3324,6 @@ class PronunciationsCompanion extends UpdateCompanion<Pronunciation> {
     Expression<String>? senseId,
     Expression<String>? accent,
     Expression<String>? ipa,
-    Expression<String>? audioAssetKey,
     Expression<String>? sourceNote,
     Expression<String>? licenceNote,
     Expression<int>? rowid,
@@ -3383,7 +3334,6 @@ class PronunciationsCompanion extends UpdateCompanion<Pronunciation> {
       if (senseId != null) 'sense_id': senseId,
       if (accent != null) 'accent': accent,
       if (ipa != null) 'ipa': ipa,
-      if (audioAssetKey != null) 'audio_asset_key': audioAssetKey,
       if (sourceNote != null) 'source_note': sourceNote,
       if (licenceNote != null) 'licence_note': licenceNote,
       if (rowid != null) 'rowid': rowid,
@@ -3396,7 +3346,6 @@ class PronunciationsCompanion extends UpdateCompanion<Pronunciation> {
     Value<String?>? senseId,
     Value<String>? accent,
     Value<String?>? ipa,
-    Value<String?>? audioAssetKey,
     Value<String?>? sourceNote,
     Value<String?>? licenceNote,
     Value<int>? rowid,
@@ -3407,7 +3356,6 @@ class PronunciationsCompanion extends UpdateCompanion<Pronunciation> {
       senseId: senseId ?? this.senseId,
       accent: accent ?? this.accent,
       ipa: ipa ?? this.ipa,
-      audioAssetKey: audioAssetKey ?? this.audioAssetKey,
       sourceNote: sourceNote ?? this.sourceNote,
       licenceNote: licenceNote ?? this.licenceNote,
       rowid: rowid ?? this.rowid,
@@ -3432,9 +3380,6 @@ class PronunciationsCompanion extends UpdateCompanion<Pronunciation> {
     if (ipa.present) {
       map['ipa'] = Variable<String>(ipa.value);
     }
-    if (audioAssetKey.present) {
-      map['audio_asset_key'] = Variable<String>(audioAssetKey.value);
-    }
     if (sourceNote.present) {
       map['source_note'] = Variable<String>(sourceNote.value);
     }
@@ -3455,7 +3400,6 @@ class PronunciationsCompanion extends UpdateCompanion<Pronunciation> {
           ..write('senseId: $senseId, ')
           ..write('accent: $accent, ')
           ..write('ipa: $ipa, ')
-          ..write('audioAssetKey: $audioAssetKey, ')
           ..write('sourceNote: $sourceNote, ')
           ..write('licenceNote: $licenceNote, ')
           ..write('rowid: $rowid')
@@ -4462,17 +4406,6 @@ class $ExamplesTable extends Examples with TableInfo<$ExamplesTable, Example> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _audioAssetKeyMeta = const VerificationMeta(
-    'audioAssetKey',
-  );
-  @override
-  late final GeneratedColumn<String> audioAssetKey = GeneratedColumn<String>(
-    'audio_asset_key',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
   static const VerificationMeta _sortOrderMeta = const VerificationMeta(
     'sortOrder',
   );
@@ -4506,7 +4439,6 @@ class $ExamplesTable extends Examples with TableInfo<$ExamplesTable, Example> {
     englishText,
     vietnameseText,
     note,
-    audioAssetKey,
     sortOrder,
     sourceId,
   ];
@@ -4564,15 +4496,6 @@ class $ExamplesTable extends Examples with TableInfo<$ExamplesTable, Example> {
         note.isAcceptableOrUnknown(data['note']!, _noteMeta),
       );
     }
-    if (data.containsKey('audio_asset_key')) {
-      context.handle(
-        _audioAssetKeyMeta,
-        audioAssetKey.isAcceptableOrUnknown(
-          data['audio_asset_key']!,
-          _audioAssetKeyMeta,
-        ),
-      );
-    }
     if (data.containsKey('sort_order')) {
       context.handle(
         _sortOrderMeta,
@@ -4614,10 +4537,6 @@ class $ExamplesTable extends Examples with TableInfo<$ExamplesTable, Example> {
         DriftSqlType.string,
         data['${effectivePrefix}note'],
       ),
-      audioAssetKey: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}audio_asset_key'],
-      ),
       sortOrder: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
@@ -4641,7 +4560,6 @@ class Example extends DataClass implements Insertable<Example> {
   final String englishText;
   final String? vietnameseText;
   final String? note;
-  final String? audioAssetKey;
   final int sortOrder;
   final String? sourceId;
   const Example({
@@ -4650,7 +4568,6 @@ class Example extends DataClass implements Insertable<Example> {
     required this.englishText,
     this.vietnameseText,
     this.note,
-    this.audioAssetKey,
     required this.sortOrder,
     this.sourceId,
   });
@@ -4665,9 +4582,6 @@ class Example extends DataClass implements Insertable<Example> {
     }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
-    }
-    if (!nullToAbsent || audioAssetKey != null) {
-      map['audio_asset_key'] = Variable<String>(audioAssetKey);
     }
     map['sort_order'] = Variable<int>(sortOrder);
     if (!nullToAbsent || sourceId != null) {
@@ -4685,9 +4599,6 @@ class Example extends DataClass implements Insertable<Example> {
           ? const Value.absent()
           : Value(vietnameseText),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
-      audioAssetKey: audioAssetKey == null && nullToAbsent
-          ? const Value.absent()
-          : Value(audioAssetKey),
       sortOrder: Value(sortOrder),
       sourceId: sourceId == null && nullToAbsent
           ? const Value.absent()
@@ -4706,7 +4617,6 @@ class Example extends DataClass implements Insertable<Example> {
       englishText: serializer.fromJson<String>(json['englishText']),
       vietnameseText: serializer.fromJson<String?>(json['vietnameseText']),
       note: serializer.fromJson<String?>(json['note']),
-      audioAssetKey: serializer.fromJson<String?>(json['audioAssetKey']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       sourceId: serializer.fromJson<String?>(json['sourceId']),
     );
@@ -4720,7 +4630,6 @@ class Example extends DataClass implements Insertable<Example> {
       'englishText': serializer.toJson<String>(englishText),
       'vietnameseText': serializer.toJson<String?>(vietnameseText),
       'note': serializer.toJson<String?>(note),
-      'audioAssetKey': serializer.toJson<String?>(audioAssetKey),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'sourceId': serializer.toJson<String?>(sourceId),
     };
@@ -4732,7 +4641,6 @@ class Example extends DataClass implements Insertable<Example> {
     String? englishText,
     Value<String?> vietnameseText = const Value.absent(),
     Value<String?> note = const Value.absent(),
-    Value<String?> audioAssetKey = const Value.absent(),
     int? sortOrder,
     Value<String?> sourceId = const Value.absent(),
   }) => Example(
@@ -4743,9 +4651,6 @@ class Example extends DataClass implements Insertable<Example> {
         ? vietnameseText.value
         : this.vietnameseText,
     note: note.present ? note.value : this.note,
-    audioAssetKey: audioAssetKey.present
-        ? audioAssetKey.value
-        : this.audioAssetKey,
     sortOrder: sortOrder ?? this.sortOrder,
     sourceId: sourceId.present ? sourceId.value : this.sourceId,
   );
@@ -4762,9 +4667,6 @@ class Example extends DataClass implements Insertable<Example> {
           ? data.vietnameseText.value
           : this.vietnameseText,
       note: data.note.present ? data.note.value : this.note,
-      audioAssetKey: data.audioAssetKey.present
-          ? data.audioAssetKey.value
-          : this.audioAssetKey,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
     );
@@ -4778,7 +4680,6 @@ class Example extends DataClass implements Insertable<Example> {
           ..write('englishText: $englishText, ')
           ..write('vietnameseText: $vietnameseText, ')
           ..write('note: $note, ')
-          ..write('audioAssetKey: $audioAssetKey, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('sourceId: $sourceId')
           ..write(')'))
@@ -4792,7 +4693,6 @@ class Example extends DataClass implements Insertable<Example> {
     englishText,
     vietnameseText,
     note,
-    audioAssetKey,
     sortOrder,
     sourceId,
   );
@@ -4805,7 +4705,6 @@ class Example extends DataClass implements Insertable<Example> {
           other.englishText == this.englishText &&
           other.vietnameseText == this.vietnameseText &&
           other.note == this.note &&
-          other.audioAssetKey == this.audioAssetKey &&
           other.sortOrder == this.sortOrder &&
           other.sourceId == this.sourceId);
 }
@@ -4816,7 +4715,6 @@ class ExamplesCompanion extends UpdateCompanion<Example> {
   final Value<String> englishText;
   final Value<String?> vietnameseText;
   final Value<String?> note;
-  final Value<String?> audioAssetKey;
   final Value<int> sortOrder;
   final Value<String?> sourceId;
   final Value<int> rowid;
@@ -4826,7 +4724,6 @@ class ExamplesCompanion extends UpdateCompanion<Example> {
     this.englishText = const Value.absent(),
     this.vietnameseText = const Value.absent(),
     this.note = const Value.absent(),
-    this.audioAssetKey = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.sourceId = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -4837,7 +4734,6 @@ class ExamplesCompanion extends UpdateCompanion<Example> {
     required String englishText,
     this.vietnameseText = const Value.absent(),
     this.note = const Value.absent(),
-    this.audioAssetKey = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.sourceId = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -4850,7 +4746,6 @@ class ExamplesCompanion extends UpdateCompanion<Example> {
     Expression<String>? englishText,
     Expression<String>? vietnameseText,
     Expression<String>? note,
-    Expression<String>? audioAssetKey,
     Expression<int>? sortOrder,
     Expression<String>? sourceId,
     Expression<int>? rowid,
@@ -4861,7 +4756,6 @@ class ExamplesCompanion extends UpdateCompanion<Example> {
       if (englishText != null) 'english_text': englishText,
       if (vietnameseText != null) 'vietnamese_text': vietnameseText,
       if (note != null) 'note': note,
-      if (audioAssetKey != null) 'audio_asset_key': audioAssetKey,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (sourceId != null) 'source_id': sourceId,
       if (rowid != null) 'rowid': rowid,
@@ -4874,7 +4768,6 @@ class ExamplesCompanion extends UpdateCompanion<Example> {
     Value<String>? englishText,
     Value<String?>? vietnameseText,
     Value<String?>? note,
-    Value<String?>? audioAssetKey,
     Value<int>? sortOrder,
     Value<String?>? sourceId,
     Value<int>? rowid,
@@ -4885,7 +4778,6 @@ class ExamplesCompanion extends UpdateCompanion<Example> {
       englishText: englishText ?? this.englishText,
       vietnameseText: vietnameseText ?? this.vietnameseText,
       note: note ?? this.note,
-      audioAssetKey: audioAssetKey ?? this.audioAssetKey,
       sortOrder: sortOrder ?? this.sortOrder,
       sourceId: sourceId ?? this.sourceId,
       rowid: rowid ?? this.rowid,
@@ -4910,9 +4802,6 @@ class ExamplesCompanion extends UpdateCompanion<Example> {
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
-    if (audioAssetKey.present) {
-      map['audio_asset_key'] = Variable<String>(audioAssetKey.value);
-    }
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
@@ -4933,7 +4822,6 @@ class ExamplesCompanion extends UpdateCompanion<Example> {
           ..write('englishText: $englishText, ')
           ..write('vietnameseText: $vietnameseText, ')
           ..write('note: $note, ')
-          ..write('audioAssetKey: $audioAssetKey, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('sourceId: $sourceId, ')
           ..write('rowid: $rowid')
@@ -9473,10 +9361,11 @@ class $$HeadwordsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (sensesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Headword,
                           $HeadwordsTable,
-                          Sense
+                          Sense,
+                          $SensesTable
                         >(
                           currentTable: table,
                           referencedTable: $$HeadwordsTableReferences
@@ -9487,17 +9376,16 @@ class $$HeadwordsTableTableManager
                                 table,
                                 p0,
                               ).sensesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.headwordId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'headword_id',
                           typedResults: items,
                         ),
                       if (pronunciationsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Headword,
                           $HeadwordsTable,
-                          Pronunciation
+                          Pronunciation,
+                          $PronunciationsTable
                         >(
                           currentTable: table,
                           referencedTable: $$HeadwordsTableReferences
@@ -9508,17 +9396,16 @@ class $$HeadwordsTableTableManager
                                 table,
                                 p0,
                               ).pronunciationsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.headwordId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'headword_id',
                           typedResults: items,
                         ),
                       if (inflectionsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Headword,
                           $HeadwordsTable,
-                          Inflection
+                          Inflection,
+                          $InflectionsTable
                         >(
                           currentTable: table,
                           referencedTable: $$HeadwordsTableReferences
@@ -9529,10 +9416,8 @@ class $$HeadwordsTableTableManager
                                 table,
                                 p0,
                               ).inflectionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.headwordId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'headword_id',
                           typedResults: items,
                         ),
                     ];
@@ -10293,10 +10178,11 @@ class $$StudyItemsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (sensesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StudyItem,
                           $StudyItemsTable,
-                          Sense
+                          Sense,
+                          $SensesTable
                         >(
                           currentTable: table,
                           referencedTable: $$StudyItemsTableReferences
@@ -10307,17 +10193,16 @@ class $$StudyItemsTableTableManager
                                 table,
                                 p0,
                               ).sensesRefs,
-                          referencedItemsForCurrentItem: (
-                            item,
-                            referencedItems,
-                          ) => referencedItems.where((e) => e.id == item.id),
+                          currentColumn: 'id',
+                          referencedColumn: 'id',
                           typedResults: items,
                         ),
                       if (phraseSensesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StudyItem,
                           $StudyItemsTable,
-                          PhraseSense
+                          PhraseSense,
+                          $PhraseSensesTable
                         >(
                           currentTable: table,
                           referencedTable: $$StudyItemsTableReferences
@@ -10328,17 +10213,16 @@ class $$StudyItemsTableTableManager
                                 table,
                                 p0,
                               ).phraseSensesRefs,
-                          referencedItemsForCurrentItem: (
-                            item,
-                            referencedItems,
-                          ) => referencedItems.where((e) => e.id == item.id),
+                          currentColumn: 'id',
+                          referencedColumn: 'id',
                           typedResults: items,
                         ),
                       if (pronunciationsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StudyItem,
                           $StudyItemsTable,
-                          Pronunciation
+                          Pronunciation,
+                          $PronunciationsTable
                         >(
                           currentTable: table,
                           referencedTable: $$StudyItemsTableReferences
@@ -10349,17 +10233,16 @@ class $$StudyItemsTableTableManager
                                 table,
                                 p0,
                               ).pronunciationsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.senseId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'sense_id',
                           typedResults: items,
                         ),
                       if (examplesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StudyItem,
                           $StudyItemsTable,
-                          Example
+                          Example,
+                          $ExamplesTable
                         >(
                           currentTable: table,
                           referencedTable: $$StudyItemsTableReferences
@@ -10370,17 +10253,16 @@ class $$StudyItemsTableTableManager
                                 table,
                                 p0,
                               ).examplesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.studyItemId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'study_item_id',
                           typedResults: items,
                         ),
                       if (itemTagsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StudyItem,
                           $StudyItemsTable,
-                          ItemTag
+                          ItemTag,
+                          $ItemTagsTable
                         >(
                           currentTable: table,
                           referencedTable: $$StudyItemsTableReferences
@@ -10391,17 +10273,16 @@ class $$StudyItemsTableTableManager
                                 table,
                                 p0,
                               ).itemTagsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.studyItemId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'study_item_id',
                           typedResults: items,
                         ),
                       if (questionsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StudyItem,
                           $StudyItemsTable,
-                          Question
+                          Question,
+                          $QuestionsTable
                         >(
                           currentTable: table,
                           referencedTable: $$StudyItemsTableReferences
@@ -10412,17 +10293,16 @@ class $$StudyItemsTableTableManager
                                 table,
                                 p0,
                               ).questionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.targetItemId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'target_item_id',
                           typedResults: items,
                         ),
                       if (learningProgressRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StudyItem,
                           $StudyItemsTable,
-                          LearningProgressData
+                          LearningProgressData,
+                          $LearningProgressTable
                         >(
                           currentTable: table,
                           referencedTable: $$StudyItemsTableReferences
@@ -10433,17 +10313,16 @@ class $$StudyItemsTableTableManager
                                 table,
                                 p0,
                               ).learningProgressRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.studyItemId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'study_item_id',
                           typedResults: items,
                         ),
                       if (reviewEventsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           StudyItem,
                           $StudyItemsTable,
-                          ReviewEvent
+                          ReviewEvent,
+                          $ReviewEventsTable
                         >(
                           currentTable: table,
                           referencedTable: $$StudyItemsTableReferences
@@ -10454,10 +10333,8 @@ class $$StudyItemsTableTableManager
                                 table,
                                 p0,
                               ).reviewEventsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.studyItemId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'study_item_id',
                           typedResults: items,
                         ),
                     ];
@@ -11377,10 +11254,11 @@ class $$PhrasesTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (phraseSensesRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       Phrase,
                       $PhrasesTable,
-                      PhraseSense
+                      PhraseSense,
+                      $PhraseSensesTable
                     >(
                       currentTable: table,
                       referencedTable: $$PhrasesTableReferences
@@ -11390,8 +11268,8 @@ class $$PhrasesTableTableManager
                         table,
                         p0,
                       ).phraseSensesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.phraseId == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'phrase_id',
                       typedResults: items,
                     ),
                 ];
@@ -11968,7 +11846,6 @@ typedef $$PronunciationsTableCreateCompanionBuilder =
       Value<String?> senseId,
       required String accent,
       Value<String?> ipa,
-      Value<String?> audioAssetKey,
       Value<String?> sourceNote,
       Value<String?> licenceNote,
       Value<int> rowid,
@@ -11980,7 +11857,6 @@ typedef $$PronunciationsTableUpdateCompanionBuilder =
       Value<String?> senseId,
       Value<String> accent,
       Value<String?> ipa,
-      Value<String?> audioAssetKey,
       Value<String?> sourceNote,
       Value<String?> licenceNote,
       Value<int> rowid,
@@ -12050,11 +11926,6 @@ class $$PronunciationsTableFilterComposer
 
   ColumnFilters<String> get ipa => $composableBuilder(
     column: $table.ipa,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get audioAssetKey => $composableBuilder(
-    column: $table.audioAssetKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12139,11 +12010,6 @@ class $$PronunciationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get audioAssetKey => $composableBuilder(
-    column: $table.audioAssetKey,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get sourceNote => $composableBuilder(
     column: $table.sourceNote,
     builder: (column) => ColumnOrderings(column),
@@ -12218,11 +12084,6 @@ class $$PronunciationsTableAnnotationComposer
 
   GeneratedColumn<String> get ipa =>
       $composableBuilder(column: $table.ipa, builder: (column) => column);
-
-  GeneratedColumn<String> get audioAssetKey => $composableBuilder(
-    column: $table.audioAssetKey,
-    builder: (column) => column,
-  );
 
   GeneratedColumn<String> get sourceNote => $composableBuilder(
     column: $table.sourceNote,
@@ -12316,7 +12177,6 @@ class $$PronunciationsTableTableManager
                 Value<String?> senseId = const Value.absent(),
                 Value<String> accent = const Value.absent(),
                 Value<String?> ipa = const Value.absent(),
-                Value<String?> audioAssetKey = const Value.absent(),
                 Value<String?> sourceNote = const Value.absent(),
                 Value<String?> licenceNote = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -12326,7 +12186,6 @@ class $$PronunciationsTableTableManager
                 senseId: senseId,
                 accent: accent,
                 ipa: ipa,
-                audioAssetKey: audioAssetKey,
                 sourceNote: sourceNote,
                 licenceNote: licenceNote,
                 rowid: rowid,
@@ -12338,7 +12197,6 @@ class $$PronunciationsTableTableManager
                 Value<String?> senseId = const Value.absent(),
                 required String accent,
                 Value<String?> ipa = const Value.absent(),
-                Value<String?> audioAssetKey = const Value.absent(),
                 Value<String?> sourceNote = const Value.absent(),
                 Value<String?> licenceNote = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -12348,7 +12206,6 @@ class $$PronunciationsTableTableManager
                 senseId: senseId,
                 accent: accent,
                 ipa: ipa,
-                audioAssetKey: audioAssetKey,
                 sourceNote: sourceNote,
                 licenceNote: licenceNote,
                 rowid: rowid,
@@ -13053,10 +12910,11 @@ class $$ContentSourcesTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (sourceAttributionsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ContentSource,
                           $ContentSourcesTable,
-                          SourceAttribution
+                          SourceAttribution,
+                          $SourceAttributionsTable
                         >(
                           currentTable: table,
                           referencedTable: $$ContentSourcesTableReferences
@@ -13067,17 +12925,16 @@ class $$ContentSourcesTableTableManager
                                 table,
                                 p0,
                               ).sourceAttributionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.sourceId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'source_id',
                           typedResults: items,
                         ),
                       if (examplesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ContentSource,
                           $ContentSourcesTable,
-                          Example
+                          Example,
+                          $ExamplesTable
                         >(
                           currentTable: table,
                           referencedTable: $$ContentSourcesTableReferences
@@ -13088,10 +12945,8 @@ class $$ContentSourcesTableTableManager
                                 table,
                                 p0,
                               ).examplesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.sourceId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'source_id',
                           typedResults: items,
                         ),
                     ];
@@ -13437,7 +13292,6 @@ typedef $$ExamplesTableCreateCompanionBuilder = ExamplesCompanion Function({
   required String englishText,
   Value<String?> vietnameseText,
   Value<String?> note,
-  Value<String?> audioAssetKey,
   Value<int> sortOrder,
   Value<String?> sourceId,
   Value<int> rowid,
@@ -13448,7 +13302,6 @@ typedef $$ExamplesTableUpdateCompanionBuilder = ExamplesCompanion Function({
   Value<String> englishText,
   Value<String?> vietnameseText,
   Value<String?> note,
-  Value<String?> audioAssetKey,
   Value<int> sortOrder,
   Value<String?> sourceId,
   Value<int> rowid,
@@ -13519,11 +13372,6 @@ class $$ExamplesTableFilterComposer
 
   ColumnFilters<String> get note => $composableBuilder(
     column: $table.note,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get audioAssetKey => $composableBuilder(
-    column: $table.audioAssetKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13608,11 +13456,6 @@ class $$ExamplesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get audioAssetKey => $composableBuilder(
-    column: $table.audioAssetKey,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
     builder: (column) => ColumnOrderings(column),
@@ -13689,11 +13532,6 @@ class $$ExamplesTableAnnotationComposer
 
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
-
-  GeneratedColumn<String> get audioAssetKey => $composableBuilder(
-    column: $table.audioAssetKey,
-    builder: (column) => column,
-  );
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
@@ -13778,7 +13616,6 @@ class $$ExamplesTableTableManager
                 Value<String> englishText = const Value.absent(),
                 Value<String?> vietnameseText = const Value.absent(),
                 Value<String?> note = const Value.absent(),
-                Value<String?> audioAssetKey = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<String?> sourceId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -13788,7 +13625,6 @@ class $$ExamplesTableTableManager
                 englishText: englishText,
                 vietnameseText: vietnameseText,
                 note: note,
-                audioAssetKey: audioAssetKey,
                 sortOrder: sortOrder,
                 sourceId: sourceId,
                 rowid: rowid,
@@ -13800,7 +13636,6 @@ class $$ExamplesTableTableManager
                 required String englishText,
                 Value<String?> vietnameseText = const Value.absent(),
                 Value<String?> note = const Value.absent(),
-                Value<String?> audioAssetKey = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<String?> sourceId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -13810,7 +13645,6 @@ class $$ExamplesTableTableManager
                 englishText: englishText,
                 vietnameseText: vietnameseText,
                 note: note,
-                audioAssetKey: audioAssetKey,
                 sortOrder: sortOrder,
                 sourceId: sourceId,
                 rowid: rowid,
@@ -14230,23 +14064,27 @@ class $$TagsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (itemTagsRefs)
-                        await $_getPrefetchedData<Tag, $TagsTable, ItemTag>(
+                        await $_getPrefetchedDataByColumns<
+                          Tag,
+                          $TagsTable,
+                          ItemTag,
+                          $ItemTagsTable
+                        >(
                           currentTable: table,
                           referencedTable: $$TagsTableReferences
                               ._itemTagsRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$TagsTableReferences(db, table, p0).itemTagsRefs,
-                          referencedItemsForCurrentItem: (
-                            item,
-                            referencedItems,
-                          ) => referencedItems.where((e) => e.tagId == item.id),
+                          currentColumn: 'id',
+                          referencedColumn: 'tag_id',
                           typedResults: items,
                         ),
                       if (notificationRulesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Tag,
                           $TagsTable,
-                          NotificationRule
+                          NotificationRule,
+                          $NotificationRulesTable
                         >(
                           currentTable: table,
                           referencedTable: $$TagsTableReferences
@@ -14256,10 +14094,8 @@ class $$TagsTableTableManager
                             table,
                             p0,
                           ).notificationRulesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.tagFilterId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'tag_filter_id',
                           typedResults: items,
                         ),
                     ];
@@ -15152,10 +14988,11 @@ class $$QuestionsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (questionOptionsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Question,
                           $QuestionsTable,
-                          QuestionOption
+                          QuestionOption,
+                          $QuestionOptionsTable
                         >(
                           currentTable: table,
                           referencedTable: $$QuestionsTableReferences
@@ -15166,17 +15003,16 @@ class $$QuestionsTableTableManager
                                 table,
                                 p0,
                               ).questionOptionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.questionId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'question_id',
                           typedResults: items,
                         ),
                       if (reviewEventsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Question,
                           $QuestionsTable,
-                          ReviewEvent
+                          ReviewEvent,
+                          $ReviewEventsTable
                         >(
                           currentTable: table,
                           referencedTable: $$QuestionsTableReferences
@@ -15187,10 +15023,8 @@ class $$QuestionsTableTableManager
                                 table,
                                 p0,
                               ).reviewEventsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.questionId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'question_id',
                           typedResults: items,
                         ),
                     ];
@@ -15594,10 +15428,11 @@ class $$QuestionOptionsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (reviewEventsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           QuestionOption,
                           $QuestionOptionsTable,
-                          ReviewEvent
+                          ReviewEvent,
+                          $ReviewEventsTable
                         >(
                           currentTable: table,
                           referencedTable: $$QuestionOptionsTableReferences
@@ -15608,10 +15443,8 @@ class $$QuestionOptionsTableTableManager
                                 table,
                                 p0,
                               ).reviewEventsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.selectedOptionId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'selected_option_id',
                           typedResults: items,
                         ),
                     ];

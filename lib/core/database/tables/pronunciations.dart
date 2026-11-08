@@ -17,7 +17,6 @@ class Pronunciations extends Table {
   )();
   TextColumn get accent => text()(); // uk, us, au, other
   TextColumn get ipa => text().nullable()();
-  TextColumn get audioAssetKey => text().nullable()();
   TextColumn get sourceNote => text().nullable()();
   TextColumn get licenceNote => text().nullable()();
 

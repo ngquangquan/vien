@@ -190,7 +190,7 @@ class _QuizScreenState extends State<QuizScreen> {
           preferredSize: const Size.fromHeight(4),
           child: LinearProgressIndicator(
             value: (_currentIndex + 1) / _questions.length,
-            backgroundColor: Colors.grey.shade200,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             valueColor: const AlwaysStoppedAnimation<Color>(
               AppTheme.primaryColor,
             ),
@@ -284,10 +284,10 @@ class _QuizScreenState extends State<QuizScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: bgColor ?? Colors.white,
+                    color: bgColor ?? Theme.of(context).colorScheme.surfaceContainer,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: borderColor ?? const Color(0xFFE2E8F0),
+                      color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
                       width: borderColor != null ? 2 : 1,
                     ),
                   ),
@@ -299,7 +299,7 @@ class _QuizScreenState extends State<QuizScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: borderColor ?? Colors.black87,
+                            color: borderColor ?? Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ),

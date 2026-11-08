@@ -105,7 +105,7 @@ Mỗi headword có cấu trúc:
       "createdAtMs": 1792000000000,
       "updatedAtMs": 1792000000000,
       "pronunciations": [
-        { "id": "pron-achieve-uk", "accent": "uk", "ipa": "/əˈtʃiːv/", "audioAssetKey": null }
+        { "id": "pron-achieve-uk", "accent": "uk", "ipa": "/əˈtʃiːv/" }
       ],
       "inflections": [
         { "id": "inf-achieve-1", "form": "achieves",  "formType": "third_person_singular" },
