@@ -239,7 +239,22 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
   }
 
   Future<void> _sendTestNotification() async {
-    await widget.notifService.requestPermission();
+    final granted = await widget.notifService.requestPermission();
+    if (!granted) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Quyền thông báo đang bị tắt! Vui lòng vào Cài đặt thiết bị > Ứng dụng > Vien để bật Cho phép thông báo.',
+            ),
+            backgroundColor: AppTheme.redColor,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+      return;
+    }
+
     await widget.notifService.sendTestNotification(
       title: 'Kiểm tra thông báo học tập',
       body: 'Hệ thống nhắc nhở của Vien đang hoạt động tốt. Hãy sẵn sàng ôn từ vựng hôm nay!',
@@ -287,7 +302,18 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
       await widget.settingsRepo.savePreferences(updated);
 
       if (_enabled) {
-        await widget.notifService.requestPermission();
+        final granted = await widget.notifService.requestPermission();
+        if (!granted && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Cảnh báo: Quyền thông báo đang bị tắt trong Cài đặt hệ thống của máy!',
+              ),
+              backgroundColor: AppTheme.redColor,
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
         final scheduled = await widget.notifService.scheduleFromCron(
           cronExpression: finalCron,
           title: 'Đã đến giờ học từ vựng!',

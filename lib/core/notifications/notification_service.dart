@@ -1,11 +1,11 @@
+import 'dart:async';
+import 'dart:math';
+
+import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-
-import 'dart:math';
-
-import 'package:drift/drift.dart';
 
 import '../database/app_database.dart';
 import 'cron_parser.dart';
@@ -45,8 +45,16 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   bool _isInitialized = false;
   final AppDatabase? db;
+  final List<Timer> _desktopTimers = [];
 
   NotificationService({this.db});
+
+  void _clearDesktopTimers() {
+    for (final timer in _desktopTimers) {
+      timer.cancel();
+    }
+    _desktopTimers.clear();
+  }
 
   Future<void> initialize({
     void Function(String? payload)? onSelectNotification,
@@ -55,9 +63,21 @@ class NotificationService {
 
     try {
       tz.initializeTimeZones();
+      try {
+        final nowMs = DateTime.now().millisecondsSinceEpoch;
+        final offsetMs = DateTime.now().timeZoneOffset.inMilliseconds;
+        for (final loc in tz.timeZoneDatabase.locations.values) {
+          if (loc.timeZone(nowMs).offset == offsetMs) {
+            tz.setLocalLocation(loc);
+            break;
+          }
+        }
+      } catch (e) {
+        debugPrint('NotificationService setLocalLocation fallback: $e');
+      }
 
       const androidSettings = AndroidInitializationSettings(
-        '@mipmap/ic_launcher',
+        '@drawable/ic_launcher_foreground',
       );
       const iosSettings = DarwinInitializationSettings(
         requestAlertPermission: false,
@@ -85,6 +105,24 @@ class NotificationService {
         },
       );
 
+      // Create Android Notification Channel with max importance
+      final androidImpl = _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      if (androidImpl != null) {
+        await androidImpl.createNotificationChannel(
+          const AndroidNotificationChannel(
+            'study_reminder_channel',
+            'Nhắc nhở học tập',
+            description: 'Thông báo lịch học từ vựng và ôn tập',
+            importance: Importance.max,
+            playSound: true,
+            enableVibration: true,
+          ),
+        );
+      }
+
       _isInitialized = true;
     } catch (e, st) {
       debugPrint('NotificationService initialize failed: $e\n$st');
@@ -104,8 +142,15 @@ class NotificationService {
             AndroidFlutterLocalNotificationsPlugin
           >();
       if (androidImpl != null) {
-        final granted = await androidImpl.requestNotificationsPermission();
-        return granted ?? false;
+        final areEnabled = await androidImpl.areNotificationsEnabled();
+        if (areEnabled == false) {
+          final granted = await androidImpl.requestNotificationsPermission();
+          return granted ?? false;
+        }
+        try {
+          await androidImpl.requestExactAlarmsPermission();
+        } catch (_) {}
+        return areEnabled ?? true;
       }
 
       final iosImpl = _plugin
@@ -137,8 +182,11 @@ class NotificationService {
       channelId,
       channelName,
       channelDescription: channelDescription,
-      importance: Importance.high,
-      priority: Priority.high,
+      importance: Importance.max,
+      priority: Priority.max,
+      playSound: true,
+      enableVibration: true,
+      icon: '@drawable/ic_launcher_foreground',
       styleInformation: bigText == null
           ? null
           : BigTextStyleInformation(bigText),
@@ -319,20 +367,15 @@ class NotificationService {
         return 0;
       }
 
+      _clearDesktopTimers();
+
       // Cancel existing study reminders in slot range (100 to 199) in parallel
       try {
-        final pending = await _plugin.pendingNotificationRequests();
-        final reminderIds = pending
-            .where((p) => p.id >= 100 && p.id < 200)
-            .map((p) => p.id)
-            .toSet();
-        if (reminderIds.isNotEmpty) {
-          await Future.wait(reminderIds.map((id) => _plugin.cancel(id: id)));
-        }
-      } catch (e) {
         await Future.wait([
           for (int i = 100; i < 200; i++) _plugin.cancel(id: i),
         ]);
+      } catch (e) {
+        debugPrint('Cancel reminders failed: $e');
       }
 
       final upcoming = parser.getNextOccurrences(
@@ -346,16 +389,13 @@ class NotificationService {
       ))..shuffle();
 
       int scheduledCount = 0;
+      final isDesktop = !kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.windows ||
+              defaultTargetPlatform == TargetPlatform.linux ||
+              defaultTargetPlatform == TargetPlatform.macOS);
+
       for (int i = 0; i < upcoming.length; i++) {
         final targetDt = upcoming[i];
-        final tzTarget = tz.TZDateTime(
-          tz.local,
-          targetDt.year,
-          targetDt.month,
-          targetDt.day,
-          targetDt.hour,
-          targetDt.minute,
-        );
         final notifId = 100 + i;
         final vocabulary = dueVocabs.isNotEmpty
             ? dueVocabs[i % dueVocabs.length]
@@ -370,21 +410,66 @@ class NotificationService {
             ? payload
             : 'vocabulary:${vocabulary.headwordId}';
 
-        try {
-          await _plugin.zonedSchedule(
-            id: notifId,
-            title: notificationTitle,
-            body: notificationBody,
-            scheduledDate: tzTarget,
-            notificationDetails: _buildNotificationDetails(
-              bigText: notificationBody,
-            ),
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            payload: notificationPayload,
-          );
-          scheduledCount++;
-        } catch (e) {
-          debugPrint('Failed to schedule item $i at $targetDt: $e');
+        if (isDesktop) {
+          // On Desktop platforms, zonedSchedule is not supported by plugins. Use in-memory timers.
+          final delay = targetDt.difference(DateTime.now());
+          if (!delay.isNegative) {
+            final timer = Timer(delay, () async {
+              try {
+                await _plugin.show(
+                  id: notifId,
+                  title: notificationTitle,
+                  body: notificationBody,
+                  notificationDetails: _buildNotificationDetails(
+                    bigText: notificationBody,
+                  ),
+                  payload: notificationPayload,
+                );
+              } catch (e) {
+                debugPrint('Desktop scheduled reminder error: $e');
+              }
+            });
+            _desktopTimers.add(timer);
+            scheduledCount++;
+          }
+        } else {
+          // On Mobile (Android / iOS): Use zonedSchedule with precise timestamp
+          final tzTarget = tz.TZDateTime.from(targetDt, tz.local);
+
+          try {
+            await _plugin.zonedSchedule(
+              id: notifId,
+              title: notificationTitle,
+              body: notificationBody,
+              scheduledDate: tzTarget,
+              notificationDetails: _buildNotificationDetails(
+                bigText: notificationBody,
+              ),
+              androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+              payload: notificationPayload,
+            );
+            scheduledCount++;
+          } catch (e) {
+            debugPrint(
+              'Exact alarm scheduling failed for item $i, retrying with inexact: $e',
+            );
+            try {
+              await _plugin.zonedSchedule(
+                id: notifId,
+                title: notificationTitle,
+                body: notificationBody,
+                scheduledDate: tzTarget,
+                notificationDetails: _buildNotificationDetails(
+                  bigText: notificationBody,
+                ),
+                androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+                payload: notificationPayload,
+              );
+              scheduledCount++;
+            } catch (e2) {
+              debugPrint('Failed to schedule item $i at $targetDt: $e2');
+            }
+          }
         }
       }
 
@@ -447,6 +532,7 @@ class NotificationService {
   }
 
   Future<void> cancelAll() async {
+    _clearDesktopTimers();
     try {
       await _plugin.cancelAll();
     } catch (e) {
