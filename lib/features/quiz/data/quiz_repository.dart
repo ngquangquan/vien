@@ -51,6 +51,12 @@ class QuizRepository {
       query.where((q) => q.cefrLevel.equals(cefrLevel));
     }
 
+    // Random sample instead of loading the whole question bank; 2x headroom
+    // for questions skipped by the validity check below.
+    query
+      ..orderBy([(q) => OrderingTerm.random()])
+      ..limit(limit * 2);
+
     final questions = await query.get();
     final List<QuizQuestionDetail> session = [];
 

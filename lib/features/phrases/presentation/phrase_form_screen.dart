@@ -139,9 +139,21 @@ class _PhraseFormScreenState extends State<PhraseFormScreen> {
     setState(() => _isSaving = true);
 
     try {
+      // Saving overwrites the whole entry, so carry over everything this form
+      // does not edit (tags, labels, notes).
+      final origSenses = {
+        for (final s
+            in widget.initialDetail?.senses ?? const <PhraseSenseDetail>[])
+          s.sense.id: s,
+      };
+
       final sensesDetail = _senses.asMap().entries.map((entry) {
         final idx = entry.key;
         final s = entry.value;
+        final orig = origSenses[s.id];
+        final origNotes = {
+          for (final e in orig?.examples ?? const <Example>[]) e.id: e.note,
+        };
 
         final examples = s.examples
             .where((e) => e.englishCtrl.text.trim().isNotEmpty)
@@ -153,7 +165,7 @@ class _PhraseFormScreenState extends State<PhraseFormScreen> {
                 vietnameseText: e.vietnameseCtrl.text.trim().isEmpty
                     ? null
                     : e.vietnameseCtrl.text.trim(),
-                note: null,
+                note: origNotes[e.id],
                 sortOrder: 1,
                 sourceId: null,
               ),
@@ -161,6 +173,7 @@ class _PhraseFormScreenState extends State<PhraseFormScreen> {
             .toList();
 
         return PhraseSenseDetail(
+          tags: orig?.tags ?? const [],
           sense: PhraseSense(
             id: s.id,
             phraseId: widget.initialDetail?.phrase.id ?? '',
@@ -171,11 +184,11 @@ class _PhraseFormScreenState extends State<PhraseFormScreen> {
                 ? null
                 : s.meaningViCtrl.text.trim(),
             cefrLevel: s.cefrLevel,
-            registerLabel: null,
-            domainLabel: null,
-            grammarNote: null,
-            usageNote: null,
-            isActive: 1,
+            registerLabel: orig?.sense.registerLabel,
+            domainLabel: orig?.sense.domainLabel,
+            grammarNote: orig?.sense.grammarNote,
+            usageNote: orig?.sense.usageNote,
+            isActive: orig?.sense.isActive ?? 1,
           ),
           examples: examples,
         );

@@ -40,7 +40,7 @@ void main() {
       final preview = backupService.previewBackup(jsonStr);
       expect(preview.headwordsCount, 3);
       expect(preview.phrasesCount, 2);
-      expect(preview.tagsCount, 4);
+      expect(preview.tagsCount, 23);
       expect(preview.questionsCount, 3);
       expect(preview.schemaVersion, 1);
     });

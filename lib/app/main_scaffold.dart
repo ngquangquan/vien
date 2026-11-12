@@ -42,6 +42,14 @@ class MainScaffold extends StatefulWidget {
   State<MainScaffold> createState() => _MainScaffoldState();
 }
 
+const _tabs = [
+  (Icons.home_outlined, Icons.home, 'Trang chủ'),
+  (Icons.menu_book_outlined, Icons.menu_book, 'Từ vựng'),
+  (Icons.format_quote_outlined, Icons.format_quote, 'Cụm từ'),
+  (Icons.psychology_outlined, Icons.psychology, 'Ôn tập'),
+  (Icons.settings_outlined, Icons.settings, 'Cài đặt'),
+];
+
 class _MainScaffoldState extends State<MainScaffold> {
   int _currentIndex = 0;
 
@@ -57,7 +65,10 @@ class _MainScaffoldState extends State<MainScaffold> {
       ),
       VocabularyListScreen(vocabRepo: widget.vocabRepo),
       PhrasesListScreen(phrasesRepo: widget.phrasesRepo),
-      ReviewScreen(reviewRepo: widget.reviewRepo),
+      ReviewScreen(
+        reviewRepo: widget.reviewRepo,
+        settingsRepo: widget.settingsRepo,
+      ),
       SettingsScreen(
         settingsRepo: widget.settingsRepo,
         tagsRepo: widget.tagsRepo,
@@ -107,32 +118,13 @@ class _MainScaffoldState extends State<MainScaffold> {
                     ],
                   ),
                 ),
-                destinations: const [
-                  NavigationRailDestination(
-                    icon: Icon(Icons.home_outlined),
-                    selectedIcon: Icon(Icons.home),
-                    label: Text('Trang chủ'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.menu_book_outlined),
-                    selectedIcon: Icon(Icons.menu_book),
-                    label: Text('Từ vựng'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.format_quote_outlined),
-                    selectedIcon: Icon(Icons.format_quote),
-                    label: Text('Cụm từ'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.psychology_outlined),
-                    selectedIcon: Icon(Icons.psychology),
-                    label: Text('Ôn tập'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.settings_outlined),
-                    selectedIcon: Icon(Icons.settings),
-                    label: Text('Cài đặt'),
-                  ),
+                destinations: [
+                  for (final (icon, selectedIcon, label) in _tabs)
+                    NavigationRailDestination(
+                      icon: Icon(icon),
+                      selectedIcon: Icon(selectedIcon),
+                      label: Text(label),
+                    ),
                 ],
               ),
             ),
@@ -150,32 +142,13 @@ class _MainScaffoldState extends State<MainScaffold> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (idx) => setState(() => _currentIndex = idx),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Trang chủ',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.menu_book_outlined),
-            selectedIcon: Icon(Icons.menu_book),
-            label: 'Từ vựng',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.format_quote_outlined),
-            selectedIcon: Icon(Icons.format_quote),
-            label: 'Cụm từ',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.psychology_outlined),
-            selectedIcon: Icon(Icons.psychology),
-            label: 'Ôn tập',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: 'Cài đặt',
-          ),
+        destinations: [
+          for (final (icon, selectedIcon, label) in _tabs)
+            NavigationDestination(
+              icon: Icon(icon),
+              selectedIcon: Icon(selectedIcon),
+              label: label,
+            ),
         ],
       ),
     );

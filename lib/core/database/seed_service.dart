@@ -54,6 +54,9 @@ class SeedService {
             'assets/seed/$relativePath',
             settingKey,
             targetVersion,
+            // Nothing to prune on first install; skipping it keeps the
+            // first launch fast.
+            replaceExisting: installed > 0,
           );
         }
         completed++;
@@ -86,7 +89,7 @@ class SeedService {
       if (installed >= seedVersion) return false;
     }
 
-    await _runSeedTransaction(data);
+    await _runSeedTransaction(data, replaceExisting: true);
 
     final now = DateTime.now().millisecondsSinceEpoch;
     await db
@@ -115,12 +118,13 @@ class SeedService {
   Future<void> _processAssetFile(
     String assetPath,
     String settingKey,
-    int targetVersion,
-  ) async {
+    int targetVersion, {
+    required bool replaceExisting,
+  }) async {
     try {
       final raw = await rootBundle.loadString(assetPath);
       final data = json.decode(raw) as Map<String, dynamic>;
-      await _runSeedTransaction(data, replaceExisting: true);
+      await _runSeedTransaction(data, replaceExisting: replaceExisting);
 
       final now = DateTime.now().millisecondsSinceEpoch;
       await db
@@ -146,7 +150,7 @@ class SeedService {
   }) async {
     await db.transaction(() async {
       if (replaceExisting) {
-        await _clearSeedData(data);
+        await _pruneStaleSeedData(data);
       }
       final now = DateTime.now().millisecondsSinceEpoch;
 
@@ -311,32 +315,72 @@ class SeedService {
     });
   }
 
-  Future<void> _clearSeedData(Map<String, dynamic> data) async {
-    final headwordIds = (data['headwords'] as List<dynamic>? ?? [])
-        .map((item) => (item as Map<String, dynamic>)['id'] as String)
-        .toList();
-    if (headwordIds.isNotEmpty) {
+  static List<Map<String, dynamic>> _maps(dynamic list) =>
+      (list as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
+
+  static List<String> _ids(dynamic list) => [
+    for (final m in _maps(list)) m['id'] as String,
+  ];
+
+  /// Deletes only the child rows the new seed no longer contains. Rows that
+  /// survive keep their id and are upserted afterwards, so user data hanging
+  /// off them (learning progress, review events, quiz targets) is preserved.
+  /// Never delete the headword / phrase / study item itself here: that cascades
+  /// into learning_progress and review_events.
+  Future<void> _pruneStaleSeedData(Map<String, dynamic> data) async {
+    for (final hw in _maps(data['headwords'])) {
+      final hwId = hw['id'] as String;
       await (db.delete(
-        db.headwords,
-      )..where((tbl) => tbl.id.isIn(headwordIds))).go();
+        db.pronunciations,
+      )..where((t) => t.headwordId.equals(hwId))).go();
+      await (db.delete(
+        db.inflections,
+      )..where((t) => t.headwordId.equals(hwId))).go();
+      await (db.delete(db.senses)..where(
+            (t) => t.headwordId.equals(hwId) & t.id.isNotIn(_ids(hw['senses'])),
+          ))
+          .go();
+      // Free the (headword_id, sense_number) unique key so renumbered senses
+      // can be upserted in any order.
+      await db.customStatement(
+        'UPDATE senses SET sense_number = -sense_number WHERE headword_id = ?',
+        [hwId],
+      );
+      await _pruneSenseChildren(hw['senses']);
     }
 
-    final phraseIds = (data['phrases'] as List<dynamic>? ?? [])
-        .map((item) => (item as Map<String, dynamic>)['id'] as String)
-        .toList();
-    if (phraseIds.isNotEmpty) {
-      await (db.delete(
-        db.phrases,
-      )..where((tbl) => tbl.id.isIn(phraseIds))).go();
+    for (final ph in _maps(data['phrases'])) {
+      final phId = ph['id'] as String;
+      await (db.delete(db.phraseSenses)..where(
+            (t) => t.phraseId.equals(phId) & t.id.isNotIn(_ids(ph['senses'])),
+          ))
+          .go();
+      await db.customStatement(
+        'UPDATE phrase_senses SET sense_number = -sense_number WHERE phrase_id = ?',
+        [phId],
+      );
+      await _pruneSenseChildren(ph['senses']);
     }
 
-    final questionIds = (data['questions'] as List<dynamic>? ?? [])
-        .map((item) => (item as Map<String, dynamic>)['id'] as String)
-        .toList();
-    if (questionIds.isNotEmpty) {
-      await (db.delete(
-        db.questions,
-      )..where((tbl) => tbl.id.isIn(questionIds))).go();
+    for (final q in _maps(data['questions'])) {
+      await (db.delete(db.questionOptions)..where(
+            (t) =>
+                t.questionId.equals(q['id'] as String) &
+                t.id.isNotIn(_ids(q['options'])),
+          ))
+          .go();
+    }
+  }
+
+  Future<void> _pruneSenseChildren(dynamic senses) async {
+    for (final s in _maps(senses)) {
+      final id = s['id'] as String;
+      await (db.delete(db.itemTags)..where((t) => t.studyItemId.equals(id)))
+          .go();
+      await (db.delete(db.examples)..where(
+            (t) => t.studyItemId.equals(id) & t.id.isNotIn(_ids(s['examples'])),
+          ))
+          .go();
     }
   }
 
@@ -453,24 +497,18 @@ class SeedService {
     }
   }
 
+  /// Creates the 'new' progress row only if none exists — re-seeding must
+  /// never reset what the user has already learned.
   Future<void> _initLearningProgress(String studyItemId, int now) async {
     await db
         .into(db.learningProgress)
-        .insertOnConflictUpdate(
+        .insert(
           LearningProgressCompanion.insert(
             studyItemId: studyItemId,
             status: 'new',
-            repetitionCount: const Value(0),
-            intervalDays: const Value(0.0),
-            easeFactor: const Value(2.5),
-            lapses: const Value(0),
-            dueAtMs: const Value(null),
-            lastReviewedAtMs: const Value(null),
-            totalCorrect: const Value(0),
-            totalIncorrect: const Value(0),
-            isFavorite: const Value(0),
             updatedAtMs: now,
           ),
+          mode: InsertMode.insertOrIgnore,
         );
   }
 }

@@ -156,22 +156,16 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
     }
 
     _cronController.text = currentCron;
+    _refreshCronPreview(currentCron);
+  }
 
-    final err = CronParser.validate(currentCron);
+  void _refreshCronPreview(String cron) {
+    final err = CronParser.validate(cron);
     _cronValidationError = err;
-
-    if (err == null) {
-      _vietnameseExplanation = CronParser.toVietnamese(currentCron);
-      final parser = CronParser.tryParse(currentCron);
-      if (parser != null) {
-        _upcomingOccurrences = parser.getNextOccurrences(count: 5);
-      } else {
-        _upcomingOccurrences = [];
-      }
-    } else {
-      _vietnameseExplanation = 'Cú pháp chưa đúng: $err';
-      _upcomingOccurrences = [];
-    }
+    _vietnameseExplanation = err == null
+        ? CronParser.toVietnamese(cron)
+        : 'Cú pháp chưa đúng: $err';
+    _upcomingOccurrences = CronParser.nextOccurrences(cron);
   }
 
   Future<void> _pickFixedTime() async {
@@ -656,23 +650,11 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                                   errorText: _cronValidationError,
                                 ),
                                 onChanged: (_) {
-                                  setState(() {
-                                    final cur = _cronController.text.trim();
-                                    final err = CronParser.validate(cur);
-                                    _cronValidationError = err;
-                                    if (err == null) {
-                                      _vietnameseExplanation =
-                                          CronParser.toVietnamese(cur);
-                                      final parser = CronParser.tryParse(cur);
-                                      _upcomingOccurrences = parser != null
-                                          ? parser.getNextOccurrences(count: 5)
-                                          : [];
-                                    } else {
-                                      _vietnameseExplanation =
-                                          'Cú pháp chưa đúng: $err';
-                                      _upcomingOccurrences = [];
-                                    }
-                                  });
+                                  setState(
+                                    () => _refreshCronPreview(
+                                      _cronController.text.trim(),
+                                    ),
+                                  );
                                 },
                               ),
                               const SizedBox(height: 16),

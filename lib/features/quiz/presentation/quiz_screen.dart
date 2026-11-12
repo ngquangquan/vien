@@ -41,6 +41,7 @@ class _QuizScreenState extends State<QuizScreen> {
     });
 
     final list = await widget.quizRepo.getQuizSession(limit: 10);
+    if (!mounted) return;
     setState(() {
       _questions = list;
       _isLoading = false;
@@ -61,6 +62,7 @@ class _QuizScreenState extends State<QuizScreen> {
       selectedOptionId: optionId,
       elapsedMs: elapsed,
     );
+    if (!mounted) return;
 
     setState(() {
       _lastResult = result;

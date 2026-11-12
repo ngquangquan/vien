@@ -162,6 +162,83 @@ void main() {
       expect(searchResult.any((p) => p.phrase == 'break a leg'), isTrue);
     });
 
+    test('Save phrase round-trips and re-saving keeps progress', () async {
+      final tag = await tagsRepo.createTag(name: 'Công việc', category: 'topic');
+
+      Example example(String text) => Example(
+        id: '',
+        studyItemId: '',
+        englishText: text,
+        vietnameseText: null,
+        note: null,
+        sortOrder: 1,
+        sourceId: null,
+      );
+
+      final phraseId = await phrasesRepo.savePhrase(
+        PhraseDetail(
+          phrase: const Phrase(
+            id: '',
+            phrase: 'Call it a day',
+            normalizedPhrase: '',
+            phraseType: 'idiom',
+            cefrLevel: 'B2',
+            notes: null,
+            isArchived: 0,
+            createdAtMs: 0,
+            updatedAtMs: 0,
+          ),
+          senses: [
+            PhraseSenseDetail(
+              sense: const PhraseSense(
+                id: '',
+                phraseId: '',
+                senseNumber: 1,
+                partOfSpeech: null,
+                definitionEn: 'To stop working for the day.',
+                meaningVi: 'Kết thúc ngày làm việc',
+                cefrLevel: 'B2',
+                registerLabel: null,
+                domainLabel: null,
+                grammarNote: null,
+                usageNote: null,
+                isActive: 1,
+              ),
+              tags: [tag],
+              examples: [
+                example("Let's call it a day."),
+                example('   '), // blank examples are dropped
+                example('We called it a day at six.'),
+              ],
+            ),
+          ],
+        ),
+      );
+
+      final loaded = (await phrasesRepo.getPhraseDetail(phraseId))!;
+      expect(loaded.phrase.normalizedPhrase, 'call it a day');
+      final sense = loaded.senses.single;
+      expect(sense.examples.map((e) => e.englishText), [
+        "Let's call it a day.",
+        'We called it a day at six.',
+      ]);
+      expect(sense.tags.single.id, tag.id);
+      expect(sense.progress!.status, 'new');
+
+      await reviewRepo.submitReviewResult(
+        studyItemId: sense.sense.id,
+        quality: 4,
+        studyMode: 'review',
+      );
+      await phrasesRepo.savePhrase(loaded);
+
+      final resaved = (await phrasesRepo.getPhraseDetail(phraseId))!;
+      expect(resaved.senses.single.sense.id, sense.sense.id);
+      expect(resaved.senses.single.examples.length, 2);
+      expect(resaved.senses.single.tags.single.id, tag.id);
+      expect(resaved.senses.single.progress!.status, 'review');
+    });
+
     test('Archive headword hides it from regular search', () async {
       await vocabRepo.archiveHeadword('hw-run', true);
 

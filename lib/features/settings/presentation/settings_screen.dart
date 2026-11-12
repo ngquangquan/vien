@@ -44,6 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _load() async {
     final prefs = await widget.settingsRepo.getPreferences();
+    if (!mounted) return;
     setState(() {
       _prefs = prefs;
       _isLoading = false;

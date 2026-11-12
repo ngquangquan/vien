@@ -158,9 +158,20 @@ class _HeadwordFormScreenState extends State<HeadwordFormScreen> {
     setState(() => _isSaving = true);
 
     try {
+      // Saving overwrites the whole entry, so carry over everything this form
+      // does not edit (IPA, inflections, tags, labels, example notes).
+      final initial = widget.initialDetail;
+      final origSenses = {
+        for (final s in initial?.senses ?? const <SenseDetail>[]) s.sense.id: s,
+      };
+
       final sensesDetail = _senses.asMap().entries.map((entry) {
         final idx = entry.key;
         final s = entry.value;
+        final orig = origSenses[s.id];
+        final origNotes = {
+          for (final e in orig?.examples ?? const <Example>[]) e.id: e.note,
+        };
 
         final examples = s.examples
             .where((e) => e.englishCtrl.text.trim().isNotEmpty)
@@ -172,7 +183,7 @@ class _HeadwordFormScreenState extends State<HeadwordFormScreen> {
                 vietnameseText: e.vietnameseCtrl.text.trim().isEmpty
                     ? null
                     : e.vietnameseCtrl.text.trim(),
-                note: null,
+                note: origNotes[e.id],
                 sortOrder: 1,
                 sourceId: null,
               ),
@@ -180,6 +191,7 @@ class _HeadwordFormScreenState extends State<HeadwordFormScreen> {
             .toList();
 
         return SenseDetail(
+          tags: orig?.tags ?? const [],
           sense: Sense(
             id: s.id,
             headwordId: widget.initialDetail?.headword.id ?? '',
@@ -190,13 +202,13 @@ class _HeadwordFormScreenState extends State<HeadwordFormScreen> {
                 ? null
                 : s.meaningViCtrl.text.trim(),
             cefrLevel: s.cefrLevel,
-            registerLabel: null,
-            domainLabel: null,
+            registerLabel: orig?.sense.registerLabel,
+            domainLabel: orig?.sense.domainLabel,
             grammarNote: s.grammarNoteCtrl.text.trim().isEmpty
                 ? null
                 : s.grammarNoteCtrl.text.trim(),
-            usageNote: null,
-            isActive: 1,
+            usageNote: orig?.sense.usageNote,
+            isActive: orig?.sense.isActive ?? 1,
           ),
           examples: examples,
         );
@@ -214,6 +226,8 @@ class _HeadwordFormScreenState extends State<HeadwordFormScreen> {
           createdAtMs: widget.initialDetail?.headword.createdAtMs ?? 0,
           updatedAtMs: 0,
         ),
+        pronunciations: initial?.pronunciations ?? const [],
+        inflections: initial?.inflections ?? const [],
         senses: sensesDetail,
       );
 

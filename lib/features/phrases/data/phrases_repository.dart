@@ -2,11 +2,13 @@ import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/database/study_item_store.dart';
 import '../domain/models/phrase_models.dart';
 
 class PhrasesRepository {
   final AppDatabase db;
   final _uuid = const Uuid();
+  late final _items = StudyItemStore(db);
 
   PhrasesRepository(this.db);
 
@@ -105,33 +107,13 @@ class PhrasesRepository {
     final List<PhraseSenseDetail> senseDetails = [];
 
     for (final s in sensesRows) {
-      final examples =
-          await (db.select(db.examples)
-                ..where((tbl) => tbl.studyItemId.equals(s.id))
-                ..orderBy([(e) => OrderingTerm(expression: e.sortOrder)]))
-              .get();
-
-      final itemTagsRows = await (db.select(
-        db.itemTags,
-      )..where((tbl) => tbl.studyItemId.equals(s.id))).get();
-      final tagIds = itemTagsRows.map((it) => it.tagId).toList();
-
-      final tags = tagIds.isEmpty
-          ? <Tag>[]
-          : await (db.select(
-              db.tags,
-            )..where((tbl) => tbl.id.isIn(tagIds))).get();
-
-      final progress = await (db.select(
-        db.learningProgress,
-      )..where((tbl) => tbl.studyItemId.equals(s.id))).getSingleOrNull();
-
+      final item = await _items.load(s.id);
       senseDetails.add(
         PhraseSenseDetail(
           sense: s,
-          examples: examples,
-          tags: tags,
-          progress: progress,
+          examples: item.examples,
+          tags: item.tags,
+          progress: item.progress,
         ),
       );
     }
@@ -202,15 +184,13 @@ class PhrasesRepository {
       for (final s in detail.senses) {
         final senseId = s.sense.id.trim().isEmpty ? _uuid.v4() : s.sense.id;
 
-        await db
-            .into(db.studyItems)
-            .insertOnConflictUpdate(
-              StudyItemsCompanion.insert(
-                id: senseId,
-                itemType: 'phrase_sense',
-                createdAtMs: now,
-              ),
-            );
+        await _items.save(
+          senseId,
+          itemType: 'phrase_sense',
+          tags: s.tags,
+          examples: s.examples,
+          now: now,
+        );
 
         await db
             .into(db.phraseSenses)
@@ -230,61 +210,6 @@ class PhrasesRepository {
                 isActive: Value(s.sense.isActive),
               ),
             );
-
-        await (db.delete(
-          db.itemTags,
-        )..where((it) => it.studyItemId.equals(senseId))).go();
-        for (final tag in s.tags) {
-          await db
-              .into(db.itemTags)
-              .insertOnConflictUpdate(
-                ItemTagsCompanion.insert(studyItemId: senseId, tagId: tag.id),
-              );
-        }
-
-        await (db.delete(
-          db.examples,
-        )..where((e) => e.studyItemId.equals(senseId))).go();
-        int exampleSort = 1;
-        for (final ex in s.examples) {
-          if (ex.englishText.trim().isEmpty) continue;
-          await db
-              .into(db.examples)
-              .insert(
-                ExamplesCompanion.insert(
-                  id: ex.id.trim().isEmpty ? _uuid.v4() : ex.id,
-                  studyItemId: senseId,
-                  englishText: ex.englishText.trim(),
-                  vietnameseText: Value(ex.vietnameseText?.trim()),
-                  note: Value(ex.note?.trim()),
-                  sortOrder: Value(exampleSort++),
-                ),
-              );
-        }
-
-        final existingProgress = await (db.select(
-          db.learningProgress,
-        )..where((p) => p.studyItemId.equals(senseId))).getSingleOrNull();
-        if (existingProgress == null) {
-          await db
-              .into(db.learningProgress)
-              .insert(
-                LearningProgressCompanion.insert(
-                  studyItemId: senseId,
-                  status: 'new',
-                  repetitionCount: const Value(0),
-                  intervalDays: const Value(0.0),
-                  easeFactor: const Value(2.5),
-                  lapses: const Value(0),
-                  dueAtMs: const Value(null),
-                  lastReviewedAtMs: const Value(null),
-                  totalCorrect: const Value(0),
-                  totalIncorrect: const Value(0),
-                  isFavorite: const Value(0),
-                  updatedAtMs: now,
-                ),
-              );
-        }
       }
     });
 

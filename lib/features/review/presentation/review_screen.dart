@@ -4,12 +4,18 @@ import '../../../app/theme.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../shared/widgets/cefr_badge.dart';
 import '../../../shared/widgets/speak_button.dart';
+import '../../settings/data/settings_repository.dart';
 import '../data/review_repository.dart';
 
 class ReviewScreen extends StatefulWidget {
   final ReviewRepository reviewRepo;
+  final SettingsRepository settingsRepo;
 
-  const ReviewScreen({super.key, required this.reviewRepo});
+  const ReviewScreen({
+    super.key,
+    required this.reviewRepo,
+    required this.settingsRepo,
+  });
 
   @override
   State<ReviewScreen> createState() => _ReviewScreenState();
@@ -30,7 +36,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   Future<void> _loadItems() async {
     setState(() => _isLoading = true);
-    final items = await widget.reviewRepo.getDueReviewItems(limit: 20);
+    final prefs = await widget.settingsRepo.getPreferences();
+    final items = await widget.reviewRepo.getDueReviewItems(
+      limit: 20,
+      preferredCefr: prefs.preferredCefr,
+      preferredTags: prefs.preferredTags,
+    );
+    if (!mounted) return;
     setState(() {
       _items = items;
       _isLoading = false;
@@ -48,6 +60,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
       quality: quality,
       studyMode: 'review',
     );
+    if (!mounted) return;
 
     setState(() {
       _sessionReviewedCount++;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../core/database/app_database.dart';
@@ -66,11 +68,31 @@ class _EnglishLearningAppState extends State<EnglishLearningApp> {
       debugPrint('Notification initialization error: $e\n$st');
     }
 
+    unawaited(_rescheduleReminders());
+
     if (mounted) {
       setState(() => _isReady = true);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _openLaunchNotification();
       });
+    }
+  }
+
+  /// Only a finite batch of occurrences is ever scheduled (and desktop timers
+  /// live in memory), so top the schedule up on every launch — otherwise
+  /// reminders silently stop once the batch runs out.
+  Future<void> _rescheduleReminders() async {
+    try {
+      final prefs = await settingsRepo.getPreferences();
+      if (!prefs.reminderEnabled) return;
+      await widget.notifService.scheduleFromCron(
+        cronExpression: prefs.reminderCronExpression,
+        title: 'Đã đến giờ học từ vựng!',
+        body: 'Dành vài phút ôn tập từ vựng và làm trắc nghiệm hôm nay nhé.',
+        payload: '/review',
+      );
+    } catch (e, st) {
+      debugPrint('Reminder reschedule error: $e\n$st');
     }
   }
 

@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:drift/native.dart';
 import 'package:vien/core/database/app_database.dart';
 import 'package:vien/core/database/seed_service.dart';
+import 'package:vien/features/review/data/review_repository.dart';
 
 void main() {
   late AppDatabase db;
@@ -125,6 +126,45 @@ void main() {
         expect(headwords.length, 3);
       },
     );
+
+    test('Re-seeding a newer version keeps learning progress', () async {
+      await seedService.seedFromJsonMap(seedData);
+      await ReviewRepository(db).submitReviewResult(
+        studyItemId: 'sense-run-v1',
+        quality: 5,
+        studyMode: 'review',
+      );
+
+      // New seed version: swap the numbers of two senses, drop the third.
+      final run = (seedData['headwords'] as List).firstWhere(
+        (h) => h['id'] == 'hw-run',
+      );
+      final senses = run['senses'] as List;
+      final dropped = senses.removeLast()['id'] as String;
+      final n0 = senses[0]['senseNumber'];
+      senses[0]['senseNumber'] = senses[1]['senseNumber'];
+      senses[1]['senseNumber'] = n0;
+      seedData['version'] = (seedData['version'] as int? ?? 1) + 1;
+      expect(await seedService.seedFromJsonMap(seedData), isTrue);
+
+      final progress = await (db.select(
+        db.learningProgress,
+      )..where((p) => p.studyItemId.equals('sense-run-v1'))).getSingle();
+      expect(progress.status, 'review');
+      expect(progress.repetitionCount, 1);
+      expect((await db.select(db.reviewEvents).get()).length, 1);
+
+      final runSenses = await (db.select(
+        db.senses,
+      )..where((s) => s.headwordId.equals('hw-run'))).get();
+      expect(runSenses.map((s) => s.id), isNot(contains(dropped)));
+      expect(runSenses.every((s) => s.senseNumber > 0), isTrue);
+      final questions = await db.select(db.questions).get();
+      expect(
+        questions.where((q) => q.id == 'q-run-v1').single.targetItemId,
+        'sense-run-v1',
+      );
+    });
 
     test(
       'Deleting headword cascades to delete associated senses and examples',

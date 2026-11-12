@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
@@ -35,10 +37,22 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
     'idiom',
   ];
 
+  Timer? _searchDebounce;
+
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchCtrl.dispose();
     super.dispose();
+  }
+
+  /// Re-query once typing pauses, not on every keystroke.
+  void _onSearchChanged(String val) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(
+      const Duration(milliseconds: 300),
+      () => setState(() => _searchQuery = val),
+    );
   }
 
   VocabularyFilter _buildFilter() {
@@ -102,15 +116,14 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
                     ? IconButton(
                         icon: const Icon(Icons.clear),
                         onPressed: () {
+                          _searchDebounce?.cancel();
                           _searchCtrl.clear();
                           setState(() => _searchQuery = '');
                         },
                       )
                     : null,
               ),
-              onChanged: (val) {
-                setState(() => _searchQuery = val);
-              },
+              onChanged: _onSearchChanged,
             ),
           ),
 
@@ -162,7 +175,9 @@ class _VocabularyListScreenState extends State<VocabularyListScreen> {
             child: StreamBuilder<List<Headword>>(
               stream: widget.vocabRepo.watchHeadwords(filter),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+                // Spinner only before the first result: while a changed filter
+                // loads, keep showing the previous list instead of flashing.
+                if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
 

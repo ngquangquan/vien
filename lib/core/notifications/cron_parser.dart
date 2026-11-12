@@ -62,10 +62,29 @@ class CronParser {
     }
   }
 
+  /// A schedule may join several expressions with ';' — needed for times a
+  /// single expression cannot express, e.g. 08:00 + 20:30 -> `0 8 * * *;30 20 * * *`.
+  static List<CronParser> parseAll(String schedule) =>
+      schedule.split(';').map(CronParser.parse).toList();
+
+  /// Next occurrences of a (possibly ';'-joined) schedule. Empty if invalid.
+  static List<DateTime> nextOccurrences(
+    String schedule, {
+    DateTime? from,
+    int count = 5,
+  }) {
+    if (validate(schedule) != null) return [];
+    final all = <DateTime>{
+      for (final p in parseAll(schedule))
+        ...p.getNextOccurrences(from: from, count: count),
+    }.toList()..sort();
+    return all.take(count).toList();
+  }
+
   /// Validate expression, returns null if valid, or an error message string.
   static String? validate(String expression) {
     try {
-      CronParser.parse(expression);
+      parseAll(expression);
       return null;
     } catch (e) {
       if (e is FormatException) return e.message;
@@ -209,6 +228,12 @@ class CronParser {
 
   /// Translates a Cron expression into clear, readable Vietnamese text.
   static String toVietnamese(String expression) {
+    if (expression.contains(';')) {
+      return expression
+          .split(';')
+          .map((e) => toVietnamese(e.trim()))
+          .join('; ');
+    }
     final parser = tryParse(expression);
     if (parser == null) {
       final err = validate(expression);
@@ -294,8 +319,9 @@ class CronParser {
     return '$dowText: $timeText';
   }
 
-  /// Builds a standard 5-part cron expression for fixed times of day.
-  /// Example: [TimeOfDay(8, 0), TimeOfDay(20, 0)] -> `0 8,20 * * *`
+  /// Builds a cron schedule for fixed times of day: one expression per
+  /// distinct minute, joined with ';' (see [parseAll]).
+  /// Example: [8:00, 20:00] -> `0 8,20 * * *`; [8:00, 20:30] -> `0 8 * * *;30 20 * * *`
   static String buildFixedTimesCron(
     List<TimeOfDay> times, {
     List<int>? weekdays,
@@ -305,17 +331,20 @@ class CronParser {
     }
 
     final dowPart = _buildWeekdaysPart(weekdays);
-
-    // If all times share the same minute
     final minutes = times.map((t) => t.minute).toSet().toList()..sort();
-    final hours = times.map((t) => t.hour).toSet().toList()..sort();
 
-    if (minutes.length == 1) {
-      return '${minutes.first} ${hours.join(',')} * * $dowPart';
-    }
-
-    // If multiple different minutes exist, list the primary or first
-    return '${times.first.minute} ${hours.join(',')} * * $dowPart';
+    return minutes
+        .map((minute) {
+          final hours =
+              times
+                  .where((t) => t.minute == minute)
+                  .map((t) => t.hour)
+                  .toSet()
+                  .toList()
+                ..sort();
+          return '$minute ${hours.join(',')} * * $dowPart';
+        })
+        .join(';');
   }
 
   /// Builds a standard cron expression for an interval within a time window.
@@ -326,6 +355,20 @@ class CronParser {
     required TimeOfDay endTime,
     List<int>? weekdays,
   }) {
+    final fitsOneStep = intervalMinutes < 60
+        ? 60 % intervalMinutes == 0
+        : intervalMinutes % 60 == 0;
+    if (!fitsOneStep) {
+      // e.g. 45 or 90 minutes: no single cron step means that, so list the
+      // actual times (start, start+interval, ... up to end).
+      final start = startTime.hour * 60 + startTime.minute;
+      final end = endTime.hour * 60 + endTime.minute;
+      return buildFixedTimesCron([
+        for (var m = start; m == start || m <= end; m += intervalMinutes)
+          TimeOfDay(hour: m ~/ 60, minute: m % 60),
+      ], weekdays: weekdays);
+    }
+
     final dowPart = _buildWeekdaysPart(weekdays);
 
     if (intervalMinutes < 60) {

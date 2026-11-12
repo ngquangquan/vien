@@ -74,6 +74,44 @@ void main() {
       expect(fifteenMins, '*/15 8-21 * * *');
     });
 
+    test('Schedules a single cron expression cannot express', () {
+      // Fixed times with different minutes must keep their own minute.
+      final fixed = CronParser.buildFixedTimesCron([
+        const TimeOfDay(hour: 8, minute: 0),
+        const TimeOfDay(hour: 20, minute: 30),
+      ]);
+      expect(fixed, '0 8 * * *;30 20 * * *');
+      expect(CronParser.validate(fixed), isNull);
+      expect(CronParser.validate('0 8 * * *;bad'), isNotNull);
+
+      final base = DateTime(2026, 10, 19, 7, 0);
+      expect(CronParser.nextOccurrences(fixed, from: base, count: 3), [
+        DateTime(2026, 10, 19, 8, 0),
+        DateTime(2026, 10, 19, 20, 30),
+        DateTime(2026, 10, 20, 8, 0),
+      ]);
+
+      // Every 45 / 90 minutes means exactly that, not "*/45" or hourly.
+      String every(int minutes) => CronParser.buildIntervalCron(
+        intervalMinutes: minutes,
+        startTime: const TimeOfDay(hour: 8, minute: 0),
+        endTime: const TimeOfDay(hour: 11, minute: 0),
+      );
+      expect(CronParser.nextOccurrences(every(45), from: base, count: 5), [
+        DateTime(2026, 10, 19, 8, 0),
+        DateTime(2026, 10, 19, 8, 45),
+        DateTime(2026, 10, 19, 9, 30),
+        DateTime(2026, 10, 19, 10, 15),
+        DateTime(2026, 10, 19, 11, 0),
+      ]);
+      expect(CronParser.nextOccurrences(every(90), from: base, count: 4), [
+        DateTime(2026, 10, 19, 8, 0),
+        DateTime(2026, 10, 19, 9, 30),
+        DateTime(2026, 10, 19, 11, 0),
+        DateTime(2026, 10, 20, 8, 0),
+      ]);
+    });
+
     test('Matches DateTime correctly', () {
       final parser = CronParser.parse('0 8 * * 1-5');
       // Monday 8:00 AM

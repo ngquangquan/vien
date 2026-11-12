@@ -169,8 +169,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (ctx) =>
-                                  ReviewScreen(reviewRepo: widget.reviewRepo),
+                              builder: (ctx) => ReviewScreen(
+                                reviewRepo: widget.reviewRepo,
+                                settingsRepo: widget.settingsRepo,
+                              ),
                             ),
                           );
                           _loadData();
@@ -313,8 +315,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (ctx) =>
-                              ReviewScreen(reviewRepo: widget.reviewRepo),
+                          builder: (ctx) => ReviewScreen(
+                            reviewRepo: widget.reviewRepo,
+                            settingsRepo: widget.settingsRepo,
+                          ),
                         ),
                       ),
                     ),

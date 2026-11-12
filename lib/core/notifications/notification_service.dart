@@ -62,19 +62,9 @@ class NotificationService {
     if (_isInitialized) return;
 
     try {
+      // tz.local stays UTC on purpose: reminders are one-shot absolute
+      // instants (TZDateTime.from below), so the zone does not affect them.
       tz.initializeTimeZones();
-      try {
-        final nowMs = DateTime.now().millisecondsSinceEpoch;
-        final offsetMs = DateTime.now().timeZoneOffset.inMilliseconds;
-        for (final loc in tz.timeZoneDatabase.locations.values) {
-          if (loc.timeZone(nowMs).offset == offsetMs) {
-            tz.setLocalLocation(loc);
-            break;
-          }
-        }
-      } catch (e) {
-        debugPrint('NotificationService setLocalLocation fallback: $e');
-      }
 
       const androidSettings = AndroidInitializationSettings(
         '@drawable/ic_launcher_foreground',
@@ -361,8 +351,7 @@ class NotificationService {
     String? payload,
   }) async {
     try {
-      final parser = CronParser.tryParse(cronExpression);
-      if (parser == null) {
+      if (CronParser.validate(cronExpression) != null) {
         debugPrint('Invalid cron expression for scheduling: $cronExpression');
         return 0;
       }
@@ -378,8 +367,8 @@ class NotificationService {
         debugPrint('Cancel reminders failed: $e');
       }
 
-      final upcoming = parser.getNextOccurrences(
-        from: DateTime.now(),
+      final upcoming = CronParser.nextOccurrences(
+        cronExpression,
         count: occurrencesToSchedule,
       );
 
@@ -480,54 +469,6 @@ class NotificationService {
     } catch (e, st) {
       debugPrint('NotificationService scheduleFromCron failed: $e\n$st');
       return 0;
-    }
-  }
-
-  Future<void> scheduleDailyReminder({
-    required int id,
-    required String title,
-    required String body,
-    required int hour,
-    required int minute,
-    String? payload,
-  }) async {
-    try {
-      final now = DateTime.now();
-      var scheduledDate = DateTime(now.year, now.month, now.day, hour, minute);
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
-
-      final tzTarget = tz.TZDateTime.from(scheduledDate, tz.local);
-
-      await _plugin.zonedSchedule(
-        id: id,
-        title: title,
-        body: body,
-        scheduledDate: tzTarget,
-        notificationDetails: _buildNotificationDetails(),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
-        payload: payload,
-      );
-    } catch (e) {
-      debugPrint('NotificationService scheduleDailyReminder fallback: $e');
-      // Fallback to show if zonedSchedule fails on certain environments (e.g. desktop)
-      await _plugin.show(
-        id: id,
-        title: title,
-        body: body,
-        notificationDetails: _buildNotificationDetails(),
-        payload: payload,
-      );
-    }
-  }
-
-  Future<void> cancelReminder(int id) async {
-    try {
-      await _plugin.cancel(id: id);
-    } catch (e) {
-      debugPrint('NotificationService cancelReminder failed: $e');
     }
   }
 

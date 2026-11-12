@@ -34,123 +34,135 @@ class ReviewRepository {
 
   ReviewRepository(this.db);
 
+  Expression<bool> _isDue(int nowMs) =>
+      db.learningProgress.dueAtMs.isNull() |
+      db.learningProgress.dueAtMs.isSmallerOrEqualValue(nowMs);
+
   Stream<int> watchDueCount() {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final query = db.select(db.learningProgress)
-      ..where((p) => p.dueAtMs.isNull() | p.dueAtMs.isSmallerOrEqualValue(now));
-    return query.watch().map((list) => list.length);
+    final count = db.learningProgress.studyItemId.count();
+    final query = db.selectOnly(db.learningProgress)
+      ..addColumns([count])
+      ..where(_isDue(DateTime.now().millisecondsSinceEpoch));
+    return query.watchSingle().map((row) => row.read(count) ?? 0);
   }
 
+  /// Due (or never-reviewed) items of non-archived words and phrases, highest
+  /// priority first. A fixed handful of queries regardless of dictionary size.
   Future<List<ReviewItemCandidate>> getDueReviewItems({
     int limit = 20,
     List<String> preferredCefr = const [],
     List<String> preferredTags = const [],
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
+    final lp = db.learningProgress;
 
-    // Fetch progress items due or new
-    final progressRows =
-        await (db.select(db.learningProgress)..where(
-              (p) => p.dueAtMs.isNull() | p.dueAtMs.isSmallerOrEqualValue(now),
-            ))
-            .get();
+    final preferredTagItems = preferredTags.isEmpty
+        ? const <String>{}
+        : (await (db.select(
+            db.itemTags,
+          )..where((t) => t.tagId.isIn(preferredTags))).get())
+              .map((t) => t.studyItemId)
+              .toSet();
 
     final List<ReviewItemCandidate> candidates = [];
 
-    for (final prog in progressRows) {
-      final studyItem = await (db.select(
-        db.studyItems,
-      )..where((s) => s.id.equals(prog.studyItemId))).getSingleOrNull();
-      if (studyItem == null) continue;
-
-      String title = '';
-      String posOrType = '';
-      String defEn = '';
-      String? meanVi;
-      String? cefr;
-
-      if (studyItem.itemType == 'sense') {
-        final sense = await (db.select(
-          db.senses,
-        )..where((s) => s.id.equals(studyItem.id))).getSingleOrNull();
-        if (sense == null) continue;
-
-        final hw = await (db.select(
-          db.headwords,
-        )..where((h) => h.id.equals(sense.headwordId))).getSingleOrNull();
-        if (hw == null || hw.isArchived == 1) {
-          continue; // Exclude archived items!
-        }
-
-        title = hw.spelling;
-        posOrType = sense.partOfSpeech;
-        defEn = sense.definitionEn;
-        meanVi = sense.meaningVi;
-        cefr = sense.cefrLevel ?? hw.cefrLevel;
-      } else if (studyItem.itemType == 'phrase_sense') {
-        final ps = await (db.select(
-          db.phraseSenses,
-        )..where((s) => s.id.equals(studyItem.id))).getSingleOrNull();
-        if (ps == null) continue;
-
-        final phrase = await (db.select(
-          db.phrases,
-        )..where((p) => p.id.equals(ps.phraseId))).getSingleOrNull();
-        if (phrase == null || phrase.isArchived == 1) {
-          continue; // Exclude archived!
-        }
-
-        title = phrase.phrase;
-        posOrType = phrase.phraseType;
-        defEn = ps.definitionEn;
-        meanVi = ps.meaningVi;
-        cefr = ps.cefrLevel ?? phrase.cefrLevel;
-      }
-
-      // Check tags
-      final itemTagsRows = await (db.select(
-        db.itemTags,
-      )..where((it) => it.studyItemId.equals(studyItem.id))).get();
-      final tagIds = itemTagsRows.map((it) => it.tagId).toList();
-
-      final isPreferred =
-          (cefr != null && preferredCefr.contains(cefr)) ||
-          tagIds.any((t) => preferredTags.contains(t));
-
-      final priority = Sm2Scheduler.calculatePriorityScore(
-        dueAtMs: prog.dueAtMs,
-        totalCorrect: prog.totalCorrect,
-        totalIncorrect: prog.totalIncorrect,
-        lapses: prog.lapses,
-        nowMs: now,
-        isUserPreference: isPreferred,
-      );
-
-      final examples =
-          await (db.select(db.examples)
-                ..where((e) => e.studyItemId.equals(studyItem.id))
-                ..orderBy([(e) => OrderingTerm(expression: e.sortOrder)])
-                ..limit(2))
-              .get();
-
+    void add(
+      TypedResult row, {
+      required String title,
+      required String posOrType,
+      required String definitionEn,
+      String? meaningVi,
+      String? cefr,
+    }) {
+      final prog = row.readTable(lp);
       candidates.add(
         ReviewItemCandidate(
-          studyItem: studyItem,
+          studyItem: row.readTable(db.studyItems),
           progress: prog,
           title: title,
           posOrType: posOrType,
-          definitionEn: defEn,
-          meaningVi: meanVi,
+          definitionEn: definitionEn,
+          meaningVi: meaningVi,
           cefrLevel: cefr,
-          exampleTexts: examples.map((e) => e.englishText).toList(),
-          priorityScore: priority,
+          exampleTexts: [], // filled below, only for the items returned
+          priorityScore: Sm2Scheduler.calculatePriorityScore(
+            dueAtMs: prog.dueAtMs,
+            totalCorrect: prog.totalCorrect,
+            totalIncorrect: prog.totalIncorrect,
+            lapses: prog.lapses,
+            nowMs: now,
+            isUserPreference:
+                (cefr != null && preferredCefr.contains(cefr)) ||
+                preferredTagItems.contains(prog.studyItemId),
+          ),
         ),
       );
     }
 
-    // Sort by priority descending
+    final senseRows =
+        await (db.select(lp).join([
+              innerJoin(db.studyItems, db.studyItems.id.equalsExp(lp.studyItemId)),
+              innerJoin(db.senses, db.senses.id.equalsExp(lp.studyItemId)),
+              innerJoin(
+                db.headwords,
+                db.headwords.id.equalsExp(db.senses.headwordId),
+              ),
+            ])..where(_isDue(now) & db.headwords.isArchived.equals(0)))
+            .get();
+    for (final row in senseRows) {
+      final sense = row.readTable(db.senses);
+      final hw = row.readTable(db.headwords);
+      add(
+        row,
+        title: hw.spelling,
+        posOrType: sense.partOfSpeech,
+        definitionEn: sense.definitionEn,
+        meaningVi: sense.meaningVi,
+        cefr: sense.cefrLevel ?? hw.cefrLevel,
+      );
+    }
+
+    final phraseRows =
+        await (db.select(lp).join([
+              innerJoin(db.studyItems, db.studyItems.id.equalsExp(lp.studyItemId)),
+              innerJoin(
+                db.phraseSenses,
+                db.phraseSenses.id.equalsExp(lp.studyItemId),
+              ),
+              innerJoin(
+                db.phrases,
+                db.phrases.id.equalsExp(db.phraseSenses.phraseId),
+              ),
+            ])..where(_isDue(now) & db.phrases.isArchived.equals(0)))
+            .get();
+    for (final row in phraseRows) {
+      final ps = row.readTable(db.phraseSenses);
+      final phrase = row.readTable(db.phrases);
+      add(
+        row,
+        title: phrase.phrase,
+        posOrType: phrase.phraseType,
+        definitionEn: ps.definitionEn,
+        meaningVi: ps.meaningVi,
+        cefr: ps.cefrLevel ?? phrase.cefrLevel,
+      );
+    }
+
     candidates.sort((a, b) => b.priorityScore.compareTo(a.priorityScore));
-    return candidates.take(limit).toList();
+    final top = candidates.take(limit).toList();
+    if (top.isEmpty) return top;
+
+    final byId = {for (final c in top) c.studyItem.id: c};
+    final examples =
+        await (db.select(db.examples)
+              ..where((e) => e.studyItemId.isIn(byId.keys))
+              ..orderBy([(e) => OrderingTerm(expression: e.sortOrder)]))
+            .get();
+    for (final e in examples) {
+      final texts = byId[e.studyItemId]!.exampleTexts;
+      if (texts.length < 2) texts.add(e.englishText);
+    }
+    return top;
   }
 
   Future<void> submitReviewResult({
@@ -218,35 +230,21 @@ class ReviewRepository {
   }
 
   Future<Map<String, int>> getLearningStats() async {
-    final list = await db.select(db.learningProgress).get();
-    int newCount = 0;
-    int learningCount = 0;
-    int reviewCount = 0;
-    int masteredCount = 0;
-
-    for (final item in list) {
-      switch (item.status) {
-        case 'new':
-          newCount++;
-          break;
-        case 'learning':
-          learningCount++;
-          break;
-        case 'review':
-          reviewCount++;
-          break;
-        case 'mastered':
-          masteredCount++;
-          break;
-      }
-    }
+    final lp = db.learningProgress;
+    final count = lp.studyItemId.count();
+    final rows =
+        await (db.selectOnly(lp)
+              ..addColumns([lp.status, count])
+              ..groupBy([lp.status]))
+            .get();
+    final byStatus = {
+      for (final r in rows) r.read(lp.status)!: r.read(count) ?? 0,
+    };
 
     return {
-      'total': list.length,
-      'new': newCount,
-      'learning': learningCount,
-      'review': reviewCount,
-      'mastered': masteredCount,
+      'total': byStatus.values.fold(0, (a, b) => a + b),
+      for (final s in const ['new', 'learning', 'review', 'mastered'])
+        s: byStatus[s] ?? 0,
     };
   }
 }
